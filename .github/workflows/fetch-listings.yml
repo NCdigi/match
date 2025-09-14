@@ -73,16 +73,28 @@ jobs:
           git diff --stat || true
 
       - name: Commit changes (if any)
-        run: |
-          git config user.name  "smartmatch-bot"
-          git config user.email "bot@users.noreply.github.com"
-          if [[ -n "$(git status --porcelain data/listings.json debug_skipped.json)" ]]; then
-            git add data/listings.json debug_skipped.json || true
-            git commit -m "Auto-update listings.json (agent 75570)"
-            git push
-          else
-            echo "No changes to commit."
-          fi
+  shell: bash
+  run: |
+    set -euo pipefail
+
+    git config user.name  "smartmatch-bot"
+    git config user.email "bot@users.noreply.github.com"
+
+    # Stage files only if they exist
+    [ -f data/listings.json ] && git add data/listings.json
+    [ -f debug_skipped.json ] && git add debug_skipped.json
+    [ -f canva/bulk_create.csv ] && git add canva/bulk_create.csv
+    [ -f canva/bulk_create.json ] && git add canva/bulk_create.json
+    [ -f sitemap.xml ] && git add sitemap.xml
+
+    # Commit only if something is staged
+    if git diff --cached --quiet; then
+      echo "No changes to commit."
+    else
+      git commit -m "Auto-update listings.json (agent 75570)"
+      git push
+    fi
+
 
       - name: Upload artifacts (inspect if failure)
         if: always()
