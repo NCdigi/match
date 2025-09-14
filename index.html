@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Huizemark • Smart Match</title>
+  <title>Huizemark • Smart Match (Blessing Nsibande)</title>
 
   <!-- Favicon (Huizemark logo) -->
   <link rel="icon" type="image/png"
@@ -37,11 +37,14 @@
 
     .btn{background:var(--hz-orange);color:var(--btn-text);border:0;border-radius:10px;padding:12px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
     .btn.secondary{background:#4d4d4d}
+    .btn[aria-disabled="true"]{opacity:0.5;pointer-events:none}
     .row{display:grid;gap:12px;grid-template-columns:1fr 1fr}
     @media(max-width:640px){.row{grid-template-columns:1fr}}
     .muted{color:var(--hz-muted)}
     .results ol{padding-left:1.2rem}
-    .quick{display:none;margin-top:12px;border-top:1px solid var(--hz-border);padding-top:12px}
+    .pill{display:inline-block;background:#f8f8f8;border:1px solid var(--hz-border);border-radius:999px;padding:4px 8px;font-size:12px;margin-left:8px}
+    .theme-dark .pill{background:#121214}
+    .hidden{display:none}
   </style>
 </head>
 <body>
@@ -56,7 +59,18 @@
   </header>
 
   <main class="wrap">
-    <section class="card">
+    <!-- ROLE SWITCH -->
+    <section class="card" aria-labelledby="role-title">
+      <h2 id="role-title" style="margin-top:0">How can we help?</h2>
+      <div role="radiogroup" aria-label="Select your goal" style="display:flex; gap:12px; flex-wrap:wrap">
+        <label><input type="radio" name="role" id="roleBuyer" value="buyer" checked> I’m buying</label>
+        <label><input type="radio" name="role" id="roleSeller" value="seller"> I’m selling</label>
+      </div>
+      <p class="muted" style="margin:8px 0 0">Choose one. We’ll show the right steps.</p>
+    </section>
+
+    <!-- BUYER: PREFERENCES -->
+    <section id="buyerPrefs" class="card">
       <h2 style="margin-top:0">Your preferences</h2>
       <form id="qform" novalidate>
         <div class="row">
@@ -88,37 +102,144 @@
       </form>
     </section>
 
-    <section class="card results">
+    <!-- BUYER: RESULTS -->
+    <section id="buyerResults" class="card results">
       <h2 style="margin-top:0">Top Matches</h2>
       <div id="out" class="muted">Complete the form to see suggested properties.</div>
+    </section>
 
-      <!-- Single contact area -->
-      <div id="quick" class="quick">
-        <h3 style="margin:8px 0">Quick contact</h3>
-        <div class="row">
-          <div><label for="name">Your name</label><input id="name" autocomplete="name" placeholder="e.g. Thabo M."></div>
-          <div><label for="email">Your email</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com"></div>
+    <!-- SELLER: FORM -->
+    <section id="sellerCard" class="card hidden" aria-labelledby="seller-title">
+      <h2 id="seller-title" style="margin-top:0">Tell us about your property</h2>
+
+      <div class="row">
+        <div>
+          <label for="s_address">Street address</label>
+          <input id="s_address" placeholder="e.g. 21 Trollip Road">
         </div>
-        <div class="row" style="margin-top:8px">
-          <div><label for="phone">Your phone (WhatsApp)</label><input id="phone" inputmode="tel" autocomplete="tel" placeholder="+27 82 123 4567"></div>
-          <div>
-            <label for="cta">What next?</label>
-            <select id="cta"><option selected>Arrange a viewing</option><option>Request more photos/videos</option><option>Get bond pre-approval help</option><option>Call me back</option></select>
-          </div>
+        <div>
+          <label for="s_suburb">Suburb / Town</label>
+          <input id="s_suburb" placeholder="e.g. Brenthurst, Brakpan">
         </div>
-        <div class="row" style="margin-top:8px">
-          <div><label for="cta_details">Preferred time / details</label><input id="cta_details" placeholder="e.g. Sat 11:00–12:00"></div>
-          <div style="display:flex;align-items:center">
-            <label><input type="checkbox" id="consent"> I consent to Huizemark storing my details (POPIA)</label>
-          </div>
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-          <!-- Pure anchor links (no JS navigation) for maximum reliability -->
-          <a id="btnWA"   class="btn"           target="_blank" rel="noopener">Chat on WhatsApp</a>
-          <a id="btnMail" class="btn secondary">Email Blessing</a>
-        </div>
-        <p class="muted" id="helper" style="margin:6px 0 0"></p>
       </div>
+
+      <div class="row">
+        <div>
+          <label for="s_type">Property type</label>
+          <select id="s_type">
+            <option>House</option><option>Apartment</option><option>Townhouse</option>
+            <option>Vacant land</option><option>Commercial</option>
+          </select>
+        </div>
+        <div>
+          <label for="s_beds">Bedrooms</label>
+          <select id="s_beds">
+            <option>N/A</option><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5+</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="s_baths">Bathrooms</label>
+          <select id="s_baths">
+            <option>N/A</option><option>1</option><option selected>2</option><option>3</option><option>4+</option>
+          </select>
+        </div>
+        <div>
+          <label for="s_sizes">Erf / Floor size</label>
+          <input id="s_sizes" placeholder="e.g. Erf 500m², Floor 180m²">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="s_upgrades">Upgrades / features</label>
+          <input id="s_upgrades" placeholder="e.g. New kitchen 2023, solar, flatlet">
+        </div>
+        <div>
+          <label for="s_price">Target sale price (R)</label>
+          <input id="s_price" inputmode="numeric" placeholder="e.g. 1450000">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="s_timeline">When do you want to sell?</label>
+          <select id="s_timeline">
+            <option selected>As soon as possible</option>
+            <option>Within 30 days</option>
+            <option>1–3 months</option>
+            <option>3+ months</option>
+          </select>
+        </div>
+        <div>
+          <label for="s_links">Photos / video links (optional)</label>
+          <input id="s_links" placeholder="e.g. Google Drive, Dropbox, YouTube">
+        </div>
+      </div>
+      <p class="muted">We’ll verify your contact details below, then you can message Blessing instantly.</p>
+    </section>
+
+    <!-- SHARED: CONTACT + VERIFICATION + SEND -->
+    <section id="verifyCard" class="card hidden" aria-live="polite">
+      <h2 style="margin-top:0">Contact & verification <span class="pill">Required</span></h2>
+
+      <div class="row">
+        <div><label for="name">Your name</label><input id="name" autocomplete="name" placeholder="e.g. Thabo M."></div>
+        <div>
+          <label for="email">Your email</label>
+          <input id="email" type="email" autocomplete="email" placeholder="you@example.com" />
+          <div id="emailErr" class="muted" style="color:#b91c1c" hidden>Enter a valid email address.</div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:8px">
+        <div>
+          <label for="phone">Your phone (WhatsApp)</label>
+          <input id="phone" inputmode="tel" autocomplete="tel" placeholder="082 123 4567 or +27 82 123 4567" />
+          <div id="phoneErr" class="muted" style="color:#b91c1c" hidden>Enter a valid SA mobile number (e.g. 082… / +27 82…).</div>
+        </div>
+        <div>
+          <label for="cta">What next?</label>
+          <select id="cta">
+            <option selected>Arrange a viewing</option>
+            <option>Request more photos/videos</option>
+            <option>Get bond pre-approval help</option>
+            <option>Call me back</option>
+            <option>Free valuation (seller)</option>
+            <option>Book listing appointment (seller)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:8px">
+        <div>
+          <label for="chk">Type this code to prove you’re real</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <code id="code" style="font-weight:700; font-size:1.05rem">SM-000000</code>
+            <button id="regen" type="button" class="btn secondary" style="padding:8px 12px">↻ New code</button>
+          </div>
+          <input id="chk" placeholder="Type the code above exactly" aria-describedby="veriMsg" />
+          <div id="veriMsg" class="muted" style="margin-top:4px" hidden>Code does not match.</div>
+        </div>
+        <div style="display:flex;align-items:center">
+          <label><input type="checkbox" id="consent"> I consent to Huizemark storing my details (POPIA)</label>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+        <a id="btnWA"   class="btn"           target="_blank" rel="noopener" aria-disabled="true">WhatsApp Blessing</a>
+        <a id="btnMail" class="btn secondary"                     aria-disabled="true">Email Blessing</a>
+      </div>
+      <p class="muted" id="helper" style="margin:6px 0 0">Fill details, pass verification, then buttons will unlock.</p>
+
+      <p class="muted" style="margin:12px 0 0">
+        View all of Blessing’s listings:
+        <a href="https://www.huizemark.com/agents/blessing-nsibande/75570/" target="_blank" rel="noopener">
+          Blessing Nsibande • Huizemark
+        </a>
+      </p>
     </section>
   </main>
 
@@ -136,10 +257,10 @@
   <script>
     /* ======= CONFIG ======= */
     const AGENT_PHONE_E164 = '27662729016';                // WhatsApp (no '+')
-    const AGENT_EMAIL      = 'bnsibande@huizemark.com';   // Email
+    const AGENT_EMAIL      = 'blessing@huizemark.co.za';   // Email
     const STOCK_URL        = '/data/listings.json';
 
-    /* ======= Theme (persisted) ======= */
+    /* ======= THEME (persisted) ======= */
     (function(){
       const root = document.documentElement, btn = document.getElementById('toggleTheme');
       const saved = localStorage.getItem('sm-theme');
@@ -166,6 +287,19 @@
     const numeric = v => parseInt(String(v||'').replace(/\D/g,'' )||'0',10);
     const join2   = arr => arr.filter(Boolean).join('\n\n');
 
+    // SA mobile normaliser → E.164
+    function normaliseSAMobile(input){
+      if(!input) return null;
+      const digits = String(input).replace(/\D/g,'');
+      if(digits.startsWith('27') && digits.length===11) return digits;              // 27XXXXXXXXX
+      if(digits.startsWith('0')  && digits.length===10) return '27'+digits.slice(1);// 0XXXXXXXXX -> 27XXXXXXXXX
+      if(digits.length===11 && digits.startsWith('278')) return digits;             // already ok
+      return null;
+    }
+    function validateEmail(e){
+      return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(e||'').trim());
+    }
+
     function scoreLead(ans,x){
       let s=0;
       if(numeric(ans.budget) >= (x.price||Infinity)) s+=15;
@@ -187,11 +321,11 @@
       return b.score-a.score;
     };
 
-    /* ======= Message builders ======= */
-    let baseSummary = '';   // preferences + matches (no PII)
-    let fullSummary = '';   // base + PII/CTA if consent
+    /* ======= MESSAGES ======= */
+    let baseSummary = '';   // buyer: prefs + matches (no PII)
+    let fullSummary = '';   // buyer: + PII/CTA if consent
 
-    function buildBaseSummary(ans, chosen){
+    function buildBuyerBaseSummary(ans, chosen){
       const budgetNum = numeric(ans.budget);
       const blocks = chosen.map(m => [
         `• ${m.x.title}`,
@@ -202,6 +336,7 @@
         `  Link: ${m.x.url}`
       ].join('\n'));
       baseSummary = join2([
+        `Lead Type: BUYER`,
         `Hi Blessing, please see my Smart Match results:`,
         `Budget: ${fmtRand(budgetNum)}`,
         `Beds wanted: ${ans.beds}`,
@@ -212,50 +347,157 @@
       ]);
     }
 
-    function buildFullSummaryFromUI(){
+    function buildBuyerFullSummary(){
       const parts = [baseSummary, '---'];
       if($('#consent').checked){
         const nm = $('#name').value.trim(), em = $('#email').value.trim(), ph = $('#phone').value.trim();
-        parts.push('BUYER DETAILS');
+        if(nm || em || ph){ parts.push('BUYER DETAILS'); }
         if(nm) parts.push(`Name: ${nm}`);
         if(em) parts.push(`Email: ${em}`);
         if(ph) parts.push(`Phone: ${ph}`);
       }
       const cta = $('#cta').value;
-      let det  = $('#cta_details').value.trim();
-      if(cta==='Get bond pre-approval help' && !det) det = 'Please refer me to a bond originator for a quick check.';
       parts.push(`Next step: ${cta}`);
+      const det  = $('#chk').dataset.ctaDetails || ''; // (set below if needed)
       if(det) parts.push(`Details: ${det}`);
       fullSummary = join2(parts);
+      return fullSummary || baseSummary;
     }
 
-    /* ======= Build anchor HREFs (no JS navigation) ======= */
+    function buildSellerSummary(){
+      const p = {
+        addr:  $('#s_address').value.trim(),
+        sub:   $('#s_suburb').value.trim(),
+        type:  $('#s_type').value,
+        beds:  $('#s_beds').value,
+        baths: $('#s_baths').value,
+        sizes: $('#s_sizes').value.trim(),
+        upg:   $('#s_upgrades').value.trim(),
+        price: $('#s_price').value.trim(),
+        tl:    $('#s_timeline').value,
+        links: $('#s_links').value.trim(),
+      };
+
+      const parts = [
+        'Lead Type: SELLER',
+        'Hi Blessing, I want to list my property with Huizemark.',
+        `Address: ${p.addr || '—'}`,
+        `Suburb: ${p.sub || '—'}`,
+        `Type: ${p.type}`,
+        `Beds/Baths: ${p.beds} / ${p.baths}`,
+        `Sizes: ${p.sizes || '—'}`,
+        `Upgrades: ${p.upg || '—'}`,
+        `Target price: ${p.price ? 'R' + Number(p.price.replace(/\D/g,'')||0).toLocaleString('en-ZA') : '—'}`,
+        `Timeline: ${p.tl}`,
+        p.links ? `Links: ${p.links}` : null,
+        '---'
+      ].filter(Boolean);
+
+      if($('#consent').checked){
+        const nm = $('#name').value.trim(), em = $('#email').value.trim(), ph = $('#phone').value.trim();
+        if(nm || em || ph){ parts.push('OWNER DETAILS'); }
+        if(nm) parts.push(`Name: ${nm}`);
+        if(em) parts.push(`Email: ${em}`);
+        if(ph) parts.push(`Phone: ${ph}`);
+      }
+      const cta = $('#cta').value;
+      parts.push(`Next step: ${cta}`);
+      return parts.join('\n');
+    }
+
+    /* ======= VERIFICATION ======= */
+    let challenge = 'SM-000000';
+    function newCode(){
+      const n = Math.floor(Math.random()*900000)+100000; // 6 digits
+      challenge = 'SM-' + n;
+      $('#code').textContent = challenge;
+      $('#chk').value = '';
+      setVeriMessage('');
+    }
+    function setVeriMessage(msg, ok=false){
+      const el = $('#veriMsg');
+      if(!msg){ el.hidden = true; el.textContent=''; return; }
+      el.hidden = false;
+      el.textContent = msg;
+      el.style.color = ok ? '#15803d' : '#b91c1c';
+    }
+    function setEmailError(show){ $('#emailErr').hidden = !show; }
+    function setPhoneError(show){ $('#phoneErr').hidden = !show; }
+
+    function isVerified(){
+      const emailOK = validateEmail($('#email').value.trim());
+      setEmailError(!emailOK);
+      const phoneE164 = normaliseSAMobile($('#phone').value.trim());
+      const phoneOK = !!phoneE164;
+      setPhoneError(!phoneOK);
+      const codeOK = $('#chk').value.trim().toUpperCase() === challenge.toUpperCase();
+      setVeriMessage(codeOK ? 'Verified ✓' : ($('#chk').value ? 'Code does not match.' : ''), codeOK);
+      return emailOK && phoneOK && codeOK;
+    }
+
+    function toggleSendButtons(enabled){
+      $('#btnWA').setAttribute('aria-disabled', enabled ? 'false' : 'true');
+      $('#btnMail').setAttribute('aria-disabled', enabled ? 'false' : 'true');
+    }
+
+    /* ======= LINKS ======= */
+    function currentMessageText(){
+      if($('#roleSeller').checked){
+        return buildSellerSummary();
+      } else {
+        return buildBuyerFullSummary();
+      }
+    }
     function updateAnchors(){
-      buildFullSummaryFromUI();
-      const text = encodeURIComponent(fullSummary || baseSummary);
-      // WhatsApp to a specific number:
+      const text = encodeURIComponent(currentMessageText());
       $('#btnWA').href   = `https://api.whatsapp.com/send?phone=${AGENT_PHONE_E164}&text=${text}`;
-      // Email:
       $('#btnMail').href = `mailto:${AGENT_EMAIL}?subject=${encodeURIComponent('Smart Match Lead')}&body=${text}`;
     }
 
+    /* ======= UI TOGGLES ======= */
+    function showBuyer(){
+      $('#buyerPrefs').classList.remove('hidden');
+      $('#buyerResults').classList.remove('hidden');
+      $('#sellerCard').classList.add('hidden');
+      $('#verifyCard').classList.add('hidden'); // shown after buyer gets matches
+    }
+    function showSeller(){
+      $('#buyerPrefs').classList.add('hidden');
+      $('#buyerResults').classList.add('hidden');
+      $('#sellerCard').classList.remove('hidden');
+      $('#verifyCard').classList.remove('hidden'); // seller can verify & send immediately
+      newCode(); toggleSendButtons(false); updateAnchors();
+      $('#helper').textContent = 'Fill a valid email, SA mobile number, and type the code to unlock sending.';
+    }
+
+    /* ======= MAIN ======= */
     (async function(){
       const STOCK = await loadStock();
-      const out = $('#out'), quick = $('#quick'), helper = $('#helper');
 
-      // update links on any change
-      ['input','change'].forEach(evt=>{
-        ['#name','#email','#phone','#consent','#cta','#cta_details'].forEach(sel=>{
+      // Role switch
+      $('#roleBuyer').addEventListener('change', e=>{ if(e.target.checked) showBuyer(); });
+      $('#roleSeller').addEventListener('change', e=>{ if(e.target.checked) showSeller(); });
+      showBuyer();
+
+      // Code regen
+      $('#regen').addEventListener('click', newCode);
+      newCode();
+
+      // Live validation + link updates
+      ['input','change','keyup'].forEach(evt=>{
+        ['#name','#email','#phone','#consent','#cta','#chk'].forEach(sel=>{
           document.querySelector(sel).addEventListener(evt, ()=>{
+            const ok = isVerified();
+            toggleSendButtons(ok);
             updateAnchors();
-            helper.textContent = $('#consent').checked
-              ? 'Your details will be sent with the results.'
-              : 'Results will be sent without your personal details (no consent).';
+            $('#helper').textContent = ok
+              ? 'Verified. You can send via WhatsApp or Email.'
+              : 'Fill a valid email, SA mobile number, and type the code to unlock sending.';
           });
         });
       });
 
-      // Matching flow
+      // Buyer matching
       $('#qform').addEventListener('submit', (e)=>{
         e.preventDefault();
         const ans = Object.fromEntries(new FormData(e.target).entries());
@@ -277,9 +519,10 @@
           }).slice(0,Math.min(wantCount,scored.length));
         }
 
+        const out = $('#out');
         if(!chosen.length){
           out.innerHTML = `<p>No matches yet. Try adjusting budget/bedrooms.</p>`;
-          quick.style.display='none';
+          $('#verifyCard').classList.add('hidden');
           return;
         }
 
@@ -294,13 +537,11 @@
           : '<p><strong>Tip:</strong> Not pre-approved? We can connect you to a bond originator for a quick check.</p>';
         out.innerHTML = `<ol>${items}</ol>${msg}`;
 
-        // base summary + reveal quick contact + seed anchors
-        buildBaseSummary(ans, chosen);
-        quick.style.display='block';
-        updateAnchors();
-        helper.textContent = $('#consent').checked
-          ? 'Your details will be sent with the results.'
-          : 'Results will be sent without your personal details (no consent).';
+        // Build buyer summary + show verification/send
+        buildBuyerBaseSummary(ans, chosen);
+        $('#verifyCard').classList.remove('hidden');
+        newCode(); toggleSendButtons(false); updateAnchors();
+        $('#helper').textContent = 'Fill a valid email, SA mobile number, and type the code to unlock sending.';
       });
     })();
   </script>
