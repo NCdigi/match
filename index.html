@@ -7,51 +7,55 @@
 
   <!-- SEO essentials -->
   <link rel="canonical" href="https://match.ncdigital.co.za/">
-  <meta name="description" content="Answer 5 quick questions and instantly see 2–10 Huizemark property matches. Book a viewing with Blessing Nsibande.">
+  <meta name="description" content="Answer a few questions and instantly see Huizemark property matches. Book a viewing with Blessing Nsibande.">
   <meta property="og:title" content="Huizemark Smart Match — Quick Property Matches">
   <meta property="og:description" content="Get tailored Huizemark matches in seconds and book a viewing with Blessing.">
   <meta property="og:url" content="https://match.ncdigital.co.za/">
   <meta property="og:image" content="https://match.ncdigital.co.za/assets/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
 
-  <!-- Theme (light default; dark via class) -->
   <style>
+    /* ===================== THEME TOKENS ===================== */
     :root{
+      /* light defaults */
       --hz-orange:#f58220; --hz-grey:#4d4d4d; --hz-bg:#ffffff; --hz-text:#222;
       --hz-muted:#6b7280; --hz-border:#e5e7eb; --focus:#1d4ed8; --btn-text:#fff;
       --card-bg:#ffffff;
     }
+    /* If user’s OS prefers dark (only used when no forced theme class) */
     @media (prefers-color-scheme: dark) {
       :root{
-        --hz-bg:#0b0b0c; --hz-text:#eaeaea; --hz-muted:#9aa0a6; --hz-border:#2a2a2d; --card-bg:#141416;
+        --hz-bg:#0b0b0c; --hz-text:#eaeaea; --hz-muted:#9aa0a6; --hz-border:#2a2a2d;
+        --card-bg:#141416;
       }
+    }
+    /* Forced light/dark classes (override OS) */
+    .theme-light{
+      --hz-bg:#ffffff; --hz-text:#222; --hz-muted:#6b7280; --hz-border:#e5e7eb; --card-bg:#ffffff;
     }
     .theme-dark{
       --hz-bg:#0b0b0c; --hz-text:#eaeaea; --hz-muted:#9aa0a6; --hz-border:#2a2a2d; --card-bg:#141416;
     }
 
-    /* Base */
+    /* ===================== BASE ===================== */
     html:focus-within { scroll-behavior: smooth; }
     body{ margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial;
           background:var(--hz-bg); color:var(--hz-text); }
     a{ color:var(--hz-orange); }
 
-    /* Skip link */
     .skip-link{ position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
     .skip-link:focus{ left:8px; top:8px; width:auto; height:auto; padding:10px 12px; background:#111; color:#fff; border-radius:8px; z-index:9999; }
 
-    /* Layout */
     .wrap{ max-width: 780px; margin: 24px auto; padding: 0 16px; }
     .brand{ display:flex; align-items:center; gap:12px; }
     .brand__logo{ height: 64px; }
+    .toolbar{ margin-left:auto; display:flex; align-items:center; gap:10px; }
 
     .card{
       background:var(--card-bg); border:1px solid var(--hz-border);
       border-radius:12px; padding:20px; margin-top:16px;
     }
-    .toolbar{ margin-left:auto; display:flex; align-items:center; gap:10px; }
 
-    /* Forms */
     label{ display:block; margin:10px 0 4px; font-weight:600; }
     input, select, button, textarea { font: inherit; }
     input, select, textarea {
@@ -60,18 +64,23 @@
     }
     input:focus, select:focus, button:focus, a:focus { outline: 3px solid var(--focus); outline-offset: 2px; }
 
-    /* Buttons */
     .btn{ background:var(--hz-orange); color:var(--btn-text); border:0; border-radius:10px;
           padding:12px 16px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
     .btn.secondary{ background:var(--hz-grey); }
 
-    /* Grid */
     .row{ display:grid; gap:12px; grid-template-columns: 1fr 1fr; }
     @media (max-width: 640px){ .row{ grid-template-columns:1fr; } }
 
     .muted{ color:var(--hz-muted); font-size: 0.95rem; }
     .results ol{ padding-left: 1.2rem; }
     .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+    /* Quick contact strip under results */
+    .quick-contact{
+      display:none; margin-top:12px; border-top:1px solid var(--hz-border); padding-top:12px;
+    }
+    .quick-contact .mini{ display:grid; gap:8px; grid-template-columns: 1fr 1fr 1fr 1fr; }
+    @media (max-width: 640px){ .quick-contact .mini{ grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
@@ -84,7 +93,7 @@
            alt="Huizemark logo" loading="lazy" decoding="async" />
       <h1 style="margin:0">Smart Match</h1>
       <div class="toolbar" role="group" aria-label="Theme toggle">
-        <button id="toggleTheme" class="btn secondary" type="button" aria-pressed="false" aria-label="Toggle dark mode">🌙 Dark mode</button>
+        <button id="toggleTheme" class="btn secondary" type="button" aria-pressed="false" aria-label="Toggle dark/light">🌙 Dark mode</button>
       </div>
     </div>
   </header>
@@ -175,36 +184,80 @@
       <div id="out" aria-live="polite" aria-atomic="false">
         <p class="muted">Complete the form to see suggested properties.</p>
       </div>
+
+      <!-- QUICK CONTACT (appears after matches; updates links LIVE) -->
+      <div id="quickContact" class="quick-contact" aria-label="Quick contact">
+        <div class="mini">
+          <div>
+            <label for="qc_name">Your name</label>
+            <input id="qc_name" placeholder="e.g. Thabo M." autocomplete="name">
+          </div>
+          <div>
+            <label for="qc_email">Your email</label>
+            <input id="qc_email" type="email" placeholder="you@example.com" autocomplete="email">
+          </div>
+          <div>
+            <label for="qc_phone">Your phone (WhatsApp)</label>
+            <input id="qc_phone" inputmode="tel" placeholder="+27 82 123 4567" autocomplete="tel">
+          </div>
+          <div>
+            <label for="qc_cta">Next step</label>
+            <select id="qc_cta">
+              <option selected>Arrange a viewing</option>
+              <option>Request more photos/videos</option>
+              <option>Get bond pre-approval help</option>
+              <option>Call me back</option>
+            </select>
+          </div>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <div>
+            <label for="qc_cta_details">Preferred time / details</label>
+            <input id="qc_cta_details" placeholder="e.g. Sat 11:00–12:00, or any weekday after 5pm">
+          </div>
+          <div>
+            <label>
+              <input type="checkbox" id="qc_consent">
+              I consent to Huizemark storing my details for matching (POPIA)
+            </label>
+            <p class="muted" style="margin:6px 0 0">If not ticked, we’ll send the results only (no personal details).</p>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px">
+          <a id="qc_wa" class="btn" target="_blank" rel="noopener">Chat on WhatsApp</a>
+          <a id="qc_mail" class="btn secondary">Email Blessing</a>
+        </div>
+      </div>
     </section>
 
-    <!-- LEAD FORM -->
+    <!-- (Optional) Full lead form kept for longer flows -->
     <section class="card" aria-labelledby="lead-title">
-      <h2 id="lead-title" style="margin-top:0">Send to Blessing</h2>
+      <h2 id="lead-title" style="margin-top:0">Full details (optional)</h2>
       <form id="lead" style="display:none" novalidate>
         <div class="row">
           <div>
             <label for="name">Your name</label>
-            <input id="name" name="name" autocomplete="name" required aria-required="true" />
+            <input id="name" name="name" autocomplete="name" />
           </div>
           <div>
             <label for="email">Your email</label>
-            <input id="email" name="email" type="email" autocomplete="email" required aria-required="true" />
+            <input id="email" name="email" type="email" autocomplete="email" />
           </div>
         </div>
         <div class="row">
           <div>
             <label for="phone">Your phone (WhatsApp)</label>
-            <input id="phone" name="phone" inputmode="tel" autocomplete="tel" required aria-required="true" />
+            <input id="phone" name="phone" inputmode="tel" autocomplete="tel" />
           </div>
           <div>
             <label for="consent">Consent</label>
-            <select id="consent" name="consent" aria-label="Consent to store details" required>
+            <select id="consent" name="consent" aria-label="Consent to store details">
               <option value="YES" selected>YES (store for matching)</option>
               <option>NO</option>
             </select>
           </div>
         </div>
-
         <div class="row" style="margin-top:8px">
           <div>
             <label for="cta">What would you like to do next?</label>
@@ -220,13 +273,11 @@
             <input id="ctaDetails" name="ctaDetails" placeholder="e.g. Sat 11:00–12:00, or any weekday after 5pm">
           </div>
         </div>
-
         <div role="group" aria-label="Contact actions" style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
           <a id="wa" class="btn" target="_blank" rel="noopener" role="button" aria-label="Chat with Blessing on WhatsApp">Chat on WhatsApp</a>
           <a id="mailto" class="btn secondary" role="button" aria-label="Email Blessing">Email Blessing</a>
           <button id="submitLead" class="btn" type="submit">Send details</button>
         </div>
-
         <p id="status" class="muted" role="status" aria-live="polite" style="margin-top:8px"></p>
       </form>
       <p class="muted" style="margin-top:12px">
@@ -259,34 +310,44 @@
   }
   </script>
 
-  <!-- App logic -->
   <script>
-    /* ========= Dark mode toggle (persisted) ========= */
+    /* ===================== DARK / LIGHT TOGGLE ===================== */
     (function(){
       const btn = document.getElementById('toggleTheme');
+      const root = document.documentElement;
       const saved = localStorage.getItem('sm-theme'); // 'dark' | 'light' | null
-      if(saved === 'dark') document.documentElement.classList.add('theme-dark');
-      if(saved === 'light') document.documentElement.classList.remove('theme-dark');
 
-      function updateLabel(){
-        const isDark = document.documentElement.classList.contains('theme-dark');
-        btn.setAttribute('aria-pressed', String(isDark));
+      // Force previously saved preference
+      if (saved === 'dark') { root.classList.add('theme-dark'); root.classList.remove('theme-light'); }
+      if (saved === 'light'){ root.classList.add('theme-light'); root.classList.remove('theme-dark'); }
+
+      function label(){
+        const isDark = root.classList.contains('theme-dark');
         btn.textContent = isDark ? '☀️ Light mode' : '🌙 Dark mode';
+        btn.setAttribute('aria-pressed', String(isDark));
       }
-      updateLabel();
+      label();
 
       btn.addEventListener('click', ()=>{
-        document.documentElement.classList.toggle('theme-dark');
-        const isDark = document.documentElement.classList.contains('theme-dark');
-        localStorage.setItem('sm-theme', isDark ? 'dark' : 'light');
-        updateLabel();
+        // If currently forced dark → switch to forced light; else → forced dark
+        if (root.classList.contains('theme-dark')) {
+          root.classList.remove('theme-dark');
+          root.classList.add('theme-light');
+          localStorage.setItem('sm-theme','light');
+        } else {
+          root.classList.remove('theme-light');
+          root.classList.add('theme-dark');
+          localStorage.setItem('sm-theme','dark');
+        }
+        label();
       });
+
       btn.addEventListener('keydown', (e)=>{ if(e.code === 'Space'){ e.preventDefault(); btn.click(); } });
     })();
 
-    /* ========= Data source ========= */
-    const STOCK_URL = '/data/listings.json';  // served by GitHub Pages (same origin)
-    window.FALLBACK_STOCK = [];               // optional built-in fallback
+    /* ===================== DATA ===================== */
+    const STOCK_URL = '/data/listings.json';     // same-origin on GitHub Pages
+    window.FALLBACK_STOCK = [];                  // optional fallback
 
     async function loadStock(){
       try{
@@ -299,13 +360,13 @@
       }
     }
 
-    /* ========= Helpers ========= */
+    /* ===================== HELPERS ===================== */
+    const Q = sel => document.querySelector(sel);
     function fmtRand(n){ try{ return 'R' + Number(n||0).toLocaleString('en-ZA'); }catch(_){ return 'R' + (n||0); } }
     function bedsLabel(v){ return (v==null || v===undefined) ? 'N/A' : String(v); }
     function joinBlocks(blocks){ return blocks.filter(Boolean).join('\n\n'); }
     function numeric(val){ return parseInt(String(val||"").replace(/\D/g,"")||"0",10); }
 
-    // Soft score (we also enforce budget separately)
     function scoreLead(ans,x){
       let s=0;
       const budget = numeric(ans.budget);
@@ -315,79 +376,118 @@
       if(String(ans.approved).toLowerCase()==="yes") s+=60;
       return s;
     }
-
-    // Sort helpers: closest to budget first (within budget), then closest over
     function sortStrictByCloseness(budget){
       return (a,b)=>{
         const da = budget - (a.x.price||0);
         const db = budget - (b.x.price||0);
-        if (da !== db) return da - db;                 // smaller gap first
-        if ((b.x.price||0) !== (a.x.price||0)) return (b.x.price||0) - (a.x.price||0); // higher price first
-        return b.score - a.score;                      // tie-breaker by score
+        if (da !== db) return da - db;                                 // closer to budget (under) first
+        if ((b.x.price||0)!==(a.x.price||0)) return (b.x.price||0)-(a.x.price||0); // then higher price first
+        return b.score - a.score;
       };
     }
     function sortNearByCloseness(budget){
       return (a,b)=>{
         const da = (a.x.price||Infinity) - budget;
         const db = (b.x.price||Infinity) - budget;
-        if (da !== db) return da - db;                 // closer over-budget first
-        if ((b.x.price||0) !== (a.x.price||0)) return (b.x.price||0) - (a.x.price||0);
+        if (da !== db) return da - db;                                 // closer over budget first
+        if ((b.x.price||0)!==(a.x.price||0)) return (b.x.price||0)-(a.x.price||0);
         return b.score - a.score;
       };
     }
 
-    /* ========= Main ========= */
+    /* ===================== MAIN ===================== */
     (async function(){
-      const qform = document.getElementById('qform');
-      const out   = document.getElementById('out');
-      const lead  = document.getElementById('lead');
-      const statusEl = document.getElementById('status');
-      const waTop = document.getElementById('whatsappTop');
-      const mailTop = document.getElementById('emailTop');
-      const waBtn = document.getElementById('wa');
-      const mailBtn = document.getElementById('mailto');
-
       const STOCK = await loadStock();
-      let baseSummary = "";  // updated after matches are built
+
+      const qform = Q('#qform');
+      const out   = Q('#out');
+      const quick = Q('#quickContact');       // quick contact strip
+      const qc = {
+        name: Q('#qc_name'), email: Q('#qc_email'), phone: Q('#qc_phone'),
+        consent: Q('#qc_consent'), cta: Q('#qc_cta'), details: Q('#qc_cta_details'),
+        wa: Q('#qc_wa'), mail: Q('#qc_mail')
+      };
+
+      const waTop  = Q('#whatsappTop');
+      const mailTop= Q('#emailTop');
+
+      // Full form (kept if you want it)
+      const lead  = Q('#lead');
+      const waBtn = Q('#wa');
+      const mailBtn = Q('#mailto');
+      const statusEl = Q('#status');
+
+      let baseSummary = "";   // matches + preferences (no PII)
+      let fullSummary = "";   // base + user details/CTA
+
+      function buildFullSummaryFromQuick(){
+        const parts = [baseSummary];
+        const wantsPII = qc.consent.checked;
+
+        // Add buyer details only if consent
+        if (wantsPII){
+          parts.push('---','BUYER DETAILS');
+          if (qc.name.value.trim())  parts.push(`Name: ${qc.name.value.trim()}`);
+          if (qc.email.value.trim()) parts.push(`Email: ${qc.email.value.trim()}`);
+          if (qc.phone.value.trim()) parts.push(`Phone: ${qc.phone.value.trim()}`);
+        }
+
+        // CTA always included (it’s an instruction, not sensitive PII)
+        const ctaVal = qc.cta.value;
+        let ctaDet = qc.details.value.trim();
+        if (ctaVal==='Get bond pre-approval help' && !ctaDet){
+          ctaDet = 'Please refer me to a bond originator for a quick check.';
+        }
+        parts.push(`Next step: ${ctaVal}`);
+        if (ctaDet) parts.push(`Details: ${ctaDet}`);
+
+        fullSummary = joinBlocks(parts);
+      }
+
+      function updateQuickLinks(){
+        buildFullSummaryFromQuick();
+        qc.wa.href   = `https://wa.me/27662729016?text=${encodeURIComponent(fullSummary)}`;
+        qc.mail.href = `mailto:blessing@huizemark.co.za?subject=Smart Match Lead&body=${encodeURIComponent(fullSummary)}`;
+
+        // Also update top buttons so a user can just tap those
+        waTop.href   = qc.wa.href;
+        mailTop.href = qc.mail.href;
+      }
+
+      // Any change in quick contact fields updates links live
+      ['input','change'].forEach(evt=>{
+        [qc.name, qc.email, qc.phone, qc.consent, qc.cta, qc.details].forEach(el=>{
+          el.addEventListener(evt, updateQuickLinks);
+        });
+      });
 
       qform.addEventListener('submit', (e)=>{
         e.preventDefault();
         const ans = Object.fromEntries(new FormData(qform).entries());
         const wantCount = Math.max(1, parseInt(ans.count || '3', 10));
-        const allowOver = !!document.getElementById('allowOverBudget')?.checked;
+        const allowOver = !!Q('#allowOverBudget')?.checked;
         const budgetNum = numeric(ans.budget);
         const isApproved = String(ans.approved).toLowerCase()==='yes';
 
         const scored = STOCK.map(x => ({ x, score: scoreLead(ans, x) }));
-
-        // Strict budget set (<= budget), sorted by "closest to budget, higher price first"
         const STRICT = scored
           .filter(m => (m.x.price||Infinity) <= budgetNum)
           .sort(sortStrictByCloseness(budgetNum));
-
-        // Near-budget set (within +8%), sorted by closeness above budget
         const NEAR = scored
           .filter(m => (m.x.price||Infinity) > budgetNum && (m.x.price - budgetNum)/Math.max(1,budgetNum) <= 0.08)
           .sort(sortNearByCloseness(budgetNum));
 
         let chosen = STRICT.slice(0, wantCount);
-        if (chosen.length < wantCount && allowOver) {
-          chosen = chosen.concat(NEAR.slice(0, wantCount - chosen.length));
-        }
+        if (chosen.length < wantCount && allowOver) chosen = chosen.concat(NEAR.slice(0, wantCount - chosen.length));
         if (chosen.length === 0 && scored.length) {
-          // fallback: best overall by closeness (absolute diff), then score
-          chosen = scored
-            .slice()
-            .sort((a,b)=>{
-              const da = Math.abs((a.x.price||0) - budgetNum);
-              const db = Math.abs((b.x.price||0) - budgetNum);
-              if (da !== db) return da - db;
-              return b.score - a.score;
-            })
-            .slice(0, Math.min(wantCount, scored.length));
+          chosen = scored.slice().sort((a,b)=>{
+            const da = Math.abs((a.x.price||0) - budgetNum);
+            const db = Math.abs((b.x.price||0) - budgetNum);
+            if (da !== db) return da - db;
+            return b.score - a.score;
+          }).slice(0, Math.min(wantCount, scored.length));
         }
 
-        // Render results
         const listHtml = chosen.map(m => (
           `<li>
              <a href="${m.x.url}" target="_blank" rel="noopener">${m.x.title}</a>
@@ -403,7 +503,7 @@
           ? `<ol>${listHtml}</ol>${preapproveMsg}`
           : `<p>No matches yet. Try adjusting budget/bedrooms. You can also message Blessing directly below.</p>`;
 
-        // Build summary (without personal details yet)
+        // Build base summary (no PII)
         const matchesBlocks = chosen.map(m => {
           const lines = [
             `• ${m.x.title}`,
@@ -428,60 +528,52 @@
           ...matchesBlocks
         ]);
 
-        // Prefill quick-contact buttons with base summary
-        waTop.href = `https://wa.me/27662729016?text=${encodeURIComponent(baseSummary)}`;
-        mailTop.href = `mailto:blessing@huizemark.co.za?subject=Smart Match Lead&body=${encodeURIComponent(baseSummary)}`;
+        // Show quick contact strip and seed the links (results only initially)
+        quick.style.display = 'block';
+        updateQuickLinks(); // will build fullSummary and set links
 
-        // Reveal lead form
+        // Also show the long form if you still want it available
         lead.style.display = 'block';
-        lead.setAttribute('tabindex','-1'); lead.focus();
         statusEl.textContent = "";
       });
 
-      // Lead submit: append buyer details + CTA and update ALL buttons
+      // Keep the long-form submit flow working too
       lead.addEventListener('submit', (e)=>{
         e.preventDefault();
         const data = Object.fromEntries(new FormData(lead).entries());
+        const wantsPII = String(data.consent||'').toUpperCase()==='YES';
 
-        if (String(data.consent).toUpperCase() !== 'YES'){
-          statusEl.textContent = "We need consent to send your details.";
-          return;
+        const parts = [baseSummary, '---'];
+        if (wantsPII){
+          parts.push('BUYER DETAILS');
+          if (data.name)  parts.push(`Name: ${data.name}`);
+          if (data.email) parts.push(`Email: ${data.email}`);
+          if (data.phone) parts.push(`Phone: ${data.phone}`);
         }
-        if (data.cta === 'Get bond pre-approval help' && !data.ctaDetails) {
-          data.ctaDetails = 'Please refer me to a bond originator for a quick check.';
+        const ctaVal = data.cta || 'Arrange a viewing';
+        let ctaDet = (data.ctaDetails||'').trim();
+        if (ctaVal==='Get bond pre-approval help' && !ctaDet) {
+          ctaDet = 'Please refer me to a bond originator for a quick check.';
         }
+        parts.push(`Next step: ${ctaVal}`);
+        if (ctaDet) parts.push(`Details: ${ctaDet}`);
 
-        const full = joinBlocks([
-          baseSummary,
-          `---`,
-          `BUYER DETAILS`,
-          `Name: ${data.name}`,
-          `Email: ${data.email}`,
-          `Phone: ${data.phone}`,
-          `Next step: ${data.cta}`,
-          data.ctaDetails ? `Details: ${data.ctaDetails}` : ''
-        ]);
+        const full = joinBlocks(parts);
 
-        // Update bottom buttons
         waBtn.href   = `https://wa.me/27662729016?text=${encodeURIComponent(full)}`;
         mailBtn.href = `mailto:blessing@huizemark.co.za?subject=Smart Match Lead&body=${encodeURIComponent(full)}`;
+        // sync top buttons too
+        Q('#whatsappTop').href = waBtn.href;
+        Q('#emailTop').href    = mailBtn.href;
 
-        // Also update top quick buttons now that we have details
-        document.getElementById('whatsappTop').href =
-          `https://wa.me/27662729016?text=${encodeURIComponent(full)}`;
-        document.getElementById('emailTop').href =
-          `mailto:blessing@huizemark.co.za?subject=Smart Match Lead&body=${encodeURIComponent(full)}`;
-
-        statusEl.textContent = "Thanks! Your details are attached — tap WhatsApp or Email to send.";
-        // To auto-open WhatsApp after submit, uncomment:
-        // window.location.href = waBtn.href;
+        statusEl.textContent = "Thanks! Your message is ready — tap WhatsApp or Email to send.";
       });
 
-      // Accessibility: let Enter/Space activate top anchor-buttons
-      for (const el of [document.getElementById('whatsappTop'), document.getElementById('emailTop')]) {
+      // Make the top anchor-buttons easy to activate via keyboard
+      [waTop, mailTop].forEach(el=>{
         el.setAttribute('tabindex','0');
         el.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); el.click(); } });
-      }
+      });
     })();
   </script>
 </body>
