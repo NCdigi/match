@@ -1,0 +1,78 @@
+name: Fetch Huizemark Stock (nightly)
+
+on:
+  schedule:
+    # runs every day at 02:15 UTC (about 04:15 South Africa in winter; 04:15/05:15 depending on DST elsewhere)
+    - cron: "15 2 * * *"
+  workflow_dispatch: {}   # a manual "Run workflow" button in the Actions tab
+  push:
+    paths:
+      - "scripts/fetch_stock.py"
+      - ".github/workflows/fetch-listings.yml"
+
+permissions:
+  contents: write   # allow the bot to commit changes back to the repo
+
+jobs:
+  update-listings:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # we want history so we can commit back
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4 lxml html5lib
+
+      - name: Run fetch_stock.py (agent 75570 only)
+        run: |
+          python scripts/fetch_stock.py
+
+      # OPTIONAL EXTRAS: build Canva CSV + sitemap (uncomment if you use them)
+      # - name: Build Canva CSV from listings
+      #   run: |
+      #     python scripts/make_canva_csv.py
+      #
+      # - name: Build sitemap.xml
+      #   run: |
+      #     python - << 'PY'
+      #     import json, datetime, html
+      #     now = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+      #     data = [{"loc":"https://match.ncdigital.co.za/","priority":"1.0"}]
+      #     try:
+      #         items = json.load(open("data/listings.json","r",encoding="utf-8"))
+      #         for it in items:
+      #             url = (it.get("url") or "").strip()
+      #             if not url: continue
+      #             data.append({"loc":url,"priority":"0.5"})
+      #     except Exception:
+      #         pass
+      #     def line(u,p):
+      #         return f"<url><loc>{html.escape(u)}</loc><lastmod>{now}</lastmod><changefreq>daily</changefreq><priority>{p}</priority></url>"
+      #     body = "\n".join(line(d["loc"], d["priority"]) for d in data)
+      #     xml = f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{body}</urlset>'
+      #     open("sitemap.xml","w",encoding="utf-8").write(xml)
+      #     PY
+
+      - name: Commit changes (if any)
+        run: |
+          git config user.name  "smartmatch-bot"
+          git config user.email "bot@users.noreply.github.com"
+          if [[ -n "$(git status --porcelain data/listings.json debug_skipped.json canva/ sitemap.xml)" ]]; then
+            git add data/listings.json debug_skipped.json || true
+            git add canva/bulk_create.csv canva/bulk_create.json || true
+            git add sitemap.xml || true
+            git commit -m "Auto-update listings & assets (nightly)"
+            git push
+          else
+            echo "No changes to commit."
+          fi
