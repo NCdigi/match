@@ -5,18 +5,43 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Huizemark • Smart Match (Blessing Nsibande)</title>
   <style>
-    :root{--hz-orange:#f58220; --hz-grey:#4d4d4d; --hz-bg:#fff; --hz-text:#222; --hz-muted:#6b7280; --hz-border:#e5e7eb; --btn-text:#fff; --card-bg:#fff;}
-    .theme-dark{--hz-bg:#0b0b0c; --hz-text:#eaeaea; --hz-muted:#9aa0a6; --hz-border:#2a2a2d; --card-bg:#141416;}
+    :root{
+      --hz-orange:#f58220; --hz-grey:#4d4d4d; --hz-bg:#ffffff; --hz-text:#222;
+      --hz-muted:#6b7280; --hz-border:#e5e7eb; --btn-text:#fff; --card-bg:#ffffff;
+      color-scheme: light dark; /* allow UA to render native controls in both */
+    }
+    .theme-dark{
+      --hz-bg:#0b0b0c; --hz-text:#eaeaea; --hz-muted:#9aa0a6; --hz-border:#2a2a2d; --card-bg:#141416;
+      color-scheme: dark; /* improves dropdown pop-up in many browsers */
+    }
+
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial;background:var(--hz-bg);color:var(--hz-text)}
-    a{color:var(--hz-orange)} .wrap{max-width:780px;margin:24px auto;padding:0 16px}
+    a{color:var(--hz-orange)}
+    .wrap{max-width:780px;margin:24px auto;padding:0 16px}
     .card{background:var(--card-bg);border:1px solid var(--hz-border);border-radius:12px;padding:20px;margin-top:16px}
     .brand{display:flex;align-items:center;gap:12px}.brand img{height:64px}
+    .toolbar{margin-left:auto}
     label{display:block;margin:10px 0 4px;font-weight:600}
-    input,select,button,textarea{font:inherit} input,select,textarea{width:100%;padding:12px;border:1px solid var(--hz-border);border-radius:10px;background:transparent;color:var(--hz-text)}
+    input,select,button,textarea{font:inherit}
+    input,select,textarea{width:100%;padding:12px;border:1px solid var(--hz-border);border-radius:10px;background:transparent;color:var(--hz-text)}
+    /* DARK inputs/dropdowns (so the select is not white on dark) */
+    .theme-dark input,
+    .theme-dark select,
+    .theme-dark textarea{
+      background-color:#0f0f10;
+      color:#eaeaea;
+      border-color:#2a2a2d;
+    }
+    /* Some UAs honor this on the dropdown menu too */
+    .theme-dark select option{background-color:#0f0f10;color:#eaeaea}
+
     .btn{background:var(--hz-orange);color:var(--btn-text);border:0;border-radius:10px;padding:12px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
-    .btn.secondary{background:#4d4d4d} .row{display:grid;gap:12px;grid-template-columns:1fr 1fr} @media(max-width:640px){.row{grid-template-columns:1fr}}
-    .muted{color:var(--hz-muted)} .results ol{padding-left:1.2rem}
-    .toolbar{margin-left:auto} .quick{display:none;margin-top:12px;border-top:1px solid var(--hz-border);padding-top:12px}
+    .btn.secondary{background:#4d4d4d}
+    .row{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+    @media(max-width:640px){.row{grid-template-columns:1fr}}
+    .muted{color:var(--hz-muted)}
+    .results ol{padding-left:1.2rem}
+    .quick{display:none;margin-top:12px;border-top:1px solid var(--hz-border);padding-top:12px}
   </style>
 </head>
 <body>
@@ -41,7 +66,9 @@
           </div>
           <div>
             <label for="beds">Bedrooms</label>
-            <select id="beds" name="beds"><option>2</option><option selected>3</option><option>4</option><option>5+</option></select>
+            <select id="beds" name="beds">
+              <option>2</option><option selected>3</option><option>4</option><option>5+</option>
+            </select>
           </div>
         </div>
         <div class="row">
@@ -65,7 +92,7 @@
       <h2 style="margin-top:0">Top Matches</h2>
       <div id="out" class="muted">Complete the form to see suggested properties.</div>
 
-      <!-- ONE contact area (DRY): updates WhatsApp/Email live -->
+      <!-- SINGLE contact area: updates WhatsApp/Email live -->
       <div id="quick" class="quick">
         <h3 style="margin:8px 0">Quick contact</h3>
         <div class="row">
@@ -86,8 +113,9 @@
           </div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-          <button id="btnWA" class="btn" type="button">Chat on WhatsApp</button>
-          <button id="btnEmail" class="btn secondary" type="button">Email Blessing</button>
+          <!-- Use anchors so mobile OS treats them as real links -->
+          <a id="btnWA" class="btn" target="_blank" rel="noopener">Chat on WhatsApp</a>
+          <a id="btnEmail" class="btn secondary">Email Blessing</a>
         </div>
         <p class="muted" id="helper" style="margin:6px 0 0"></p>
       </div>
@@ -95,6 +123,10 @@
   </main>
 
   <script>
+    /* ======= CONFIG ======= */
+    const AGENT_PHONE_E164 = '27662729016';                // WhatsApp phone (no +)
+    const AGENT_EMAIL      = 'blessing@huizemark.co.za';   // Email
+
     /* ======= THEME (force class, persisted) ======= */
     (function(){
       const root = document.documentElement, btn = document.getElementById('toggleTheme');
@@ -111,10 +143,10 @@
 
     /* ======= HELPERS ======= */
     const $ = sel => document.querySelector(sel);
-    const fmtRand = n => 'R' + Number(n||0).toLocaleString('en-ZA');
-    const bedsLabel = v => (v==null? 'N/A' : String(v));
-    const numeric = v => parseInt(String(v||'').replace(/\D/g,'' )||'0',10);
-    const joinBlocks = arr => arr.filter(Boolean).join('\n\n');
+    const fmtRand  = n => 'R' + Number(n||0).toLocaleString('en-ZA');
+    const bedsLbl  = v => (v==null? 'N/A' : String(v));
+    const numeric  = v => parseInt(String(v||'').replace(/\D/g,'' )||'0',10);
+    const join2    = arr => arr.filter(Boolean).join('\n\n');
 
     function scoreLead(ans,x){
       let s=0;
@@ -126,18 +158,20 @@
     }
     const sortStrictByCloseness = (budget)=>(a,b)=>{
       const da = budget - (a.x.price||0), db = budget - (b.x.price||0);
-      if(da!==db) return da-db; if((b.x.price||0)!==(a.x.price||0)) return (b.x.price||0)-(a.x.price||0);
+      if(da!==db) return da-db;
+      if((b.x.price||0)!==(a.x.price||0)) return (b.x.price||0)-(a.x.price||0);
       return b.score-a.score;
     };
     const sortNearByCloseness = (budget)=>(a,b)=>{
       const da = (a.x.price||Infinity)-budget, db = (b.x.price||Infinity)-budget;
-      if(da!==db) return da-db; if((b.x.price||0)!==(a.x.price||0)) return (b.x.price||0)-(a.x.price||0);
+      if(da!==db) return da-db;
+      if((b.x.price||0)!==(a.x.price||0)) return (b.x.price||0)-(a.x.price||0);
       return b.score-a.score;
     };
 
     /* ======= MESSAGE BUILDERS ======= */
-    let baseSummary = '';      // preferences + matches
-    let fullSummary = '';      // base + PII / CTA (if consent)
+    let baseSummary = '';   // preferences + matches (no PII)
+    let fullSummary = '';   // base + PII/CTA if consent
 
     function buildBaseSummary(ans, chosen){
       const budgetNum = numeric(ans.budget);
@@ -145,11 +179,11 @@
         `• ${m.x.title}`,
         `  WebRef: ${m.x.ref||'—'}`,
         `  Price: ${fmtRand(m.x.price)}`,
-        `  Beds: ${bedsLabel(m.x.beds)}`,
+        `  Beds: ${bedsLbl(m.x.beds)}`,
         `  Area: ${m.x.area||''}`,
         `  Link: ${m.x.url}`
       ].join('\n'));
-      baseSummary = joinBlocks([
+      baseSummary = join2([
         `Hi Blessing, please see my Smart Match results:`,
         `Budget: ${fmtRand(budgetNum)}`,
         `Beds wanted: ${ans.beds}`,
@@ -175,67 +209,75 @@
       if(cta==='Get bond pre-approval help' && !det) det = 'Please refer me to a bond originator for a quick check.';
       parts.push(`Next step: ${cta}`);
       if(det) parts.push(`Details: ${det}`);
-      fullSummary = joinBlocks(parts);
+      fullSummary = join2(parts);
     }
 
-    /* ======= OPENERS (WhatsApp + Email) ======= */
-    function openWhatsApp(text){
-      // 1) Try native app first
-      const native = `whatsapp://send?text=${encodeURIComponent(text)}`;
-      const web    = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`; // better x-browser than wa.me
-      let opened = false;
+    /* ======= BUILD LINKS (and smart WhatsApp opener) ======= */
+    function updateLinks(){
+      buildFullSummaryFromUI();
+      // WhatsApp: set anchor href to **WEB** endpoint with phone+text
+      const waWeb = `https://api.whatsapp.com/send?phone=${AGENT_PHONE_E164}&text=${encodeURIComponent(fullSummary||baseSummary)}`;
+      $('#btnWA').setAttribute('href', waWeb);
 
-      // Use an iframe trick for iOS/Safari; else try location change
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      if(isIOS){
-        const iframe = document.createElement('iframe');
-        iframe.style.display='none'; iframe.src=native;
-        document.body.appendChild(iframe);
-      }else{
-        window.location.href = native;
-      }
+      // Email: real mailto
+      const mail = `mailto:${AGENT_EMAIL}?subject=${encodeURIComponent('Smart Match Lead')}&body=${encodeURIComponent(fullSummary||baseSummary)}`;
+      $('#btnEmail').setAttribute('href', mail);
+    }
 
-      const start = Date.now();
-      setTimeout(()=>{
-        // If still here after ~800ms, fall back to web link
-        if(Date.now()-start < 1800 && !opened){
-          window.location.href = web;
+    // On click, try native first, then let the anchor's href (web) handle fallback
+    function attachSmartWhatsApp(){
+      const a = $('#btnWA');
+      a.addEventListener('click', (ev)=>{
+        // try native deep link to open the app directly
+        const native = `whatsapp://send?phone=${AGENT_PHONE_E164}&text=${encodeURIComponent(fullSummary||baseSummary)}`;
+        // Use user gesture to attempt native; if it fails, the anchor's href (web) still fires.
+        // On some browsers, navigating twice cancels; so we open native via setTimeout and
+        // allow the anchor default (web) to proceed only if native didn't.
+        let jumped = false;
+        const t = setTimeout(()=>{ if(!jumped){ /* web fallback via anchor href happens automatically */ } }, 150);
+        try{
+          // Some browsers block programmatic nav; but this runs inside a user click.
+          window.location.assign(native);
+          jumped = true;
+          clearTimeout(t);
+          // prevent the anchor from also following web link if native succeeded
+          ev.preventDefault();
+        }catch(_){
+          // do nothing; anchor's href (web) will handle
         }
-      }, 800);
-    }
-
-    function openEmail(text){
-      const url = `mailto:blessing@huizemark.co.za?subject=${encodeURIComponent('Smart Match Lead')}&body=${encodeURIComponent(text)}`;
-      window.location.href = url;
+      });
     }
 
     /* ======= MAIN ======= */
     (async function(){
-      const STOCK = await loadStock();
-      const out = $('#out'), quick = $('#quick');
-      const helper = $('#helper');
+      // Theme saved state applied above; nothing else needed.
 
-      // Live update links as user types
+      const STOCK = await loadStock();
+      const out = $('#out'), quick = $('#quick'), helper = $('#helper');
+
+      // Live update links as user types/ticks
       ['input','change'].forEach(evt=>{
         ['#name','#email','#phone','#consent','#cta','#cta_details'].forEach(sel=>{
           document.querySelector(sel).addEventListener(evt, ()=>{
-            buildFullSummaryFromUI();
-            helper.textContent = $('#consent').checked ? 'Your details will be sent with the results.' : 'Results will be sent without your personal details (no consent).';
+            updateLinks();
+            helper.textContent = $('#consent').checked
+              ? 'Your details will be sent with the results.'
+              : 'Results will be sent without your personal details (no consent).';
           });
         });
       });
 
-      // Buttons
-      $('#btnWA').addEventListener('click', ()=>{
-        buildFullSummaryFromUI();
-        openWhatsApp(fullSummary || baseSummary);
-      });
+      // Smart WA opener attaches once
+      attachSmartWhatsApp();
+
+      // Email anchor: ensure it’s a real navigation on some iOS versions
       $('#btnEmail').addEventListener('click', ()=>{
-        buildFullSummaryFromUI();
-        openEmail(fullSummary || baseSummary);
+        // href is already set; some WebViews need a direct assign:
+        const href = $('#btnEmail').getAttribute('href');
+        if(href) window.location.href = href;
       });
 
-      // Match flow
+      // Matching
       $('#qform').addEventListener('submit', (e)=>{
         e.preventDefault();
         const ans = Object.fromEntries(new FormData(e.target).entries());
@@ -257,16 +299,16 @@
           }).slice(0,Math.min(wantCount,scored.length));
         }
 
-        // Render results
         if(!chosen.length){
           out.innerHTML = `<p>No matches yet. Try adjusting budget/bedrooms.</p>`;
           quick.style.display='none';
           return;
         }
+
         const items = chosen.map(m=>(
           `<li>
             <a href="${m.x.url}" target="_blank" rel="noopener">${m.x.title}</a>
-            <span class="muted"> (WebRef ${m.x.ref||'—'}) — ${fmtRand(m.x.price)} — Beds: ${bedsLabel(m.x.beds)} — ${m.x.area||''}</span>
+            <span class="muted"> (WebRef ${m.x.ref||'—'}) — ${fmtRand(m.x.price)} — Beds: ${bedsLbl(m.x.beds)} — ${m.x.area||''}</span>
           </li>`
         )).join('');
         const msg = isApproved
@@ -274,10 +316,13 @@
           : '<p><strong>Tip:</strong> Not pre-approved? We can connect you to a bond originator for a quick check.</p>';
         out.innerHTML = `<ol>${items}</ol>${msg}`;
 
-        // Build base summary + show quick contact
+        // Build base summary + show quick contact + seed links
         buildBaseSummary(ans, chosen);
         quick.style.display='block';
-        helper.textContent = $('#consent').checked ? 'Your details will be sent with the results.' : 'Results will be sent without your personal details (no consent).';
+        updateLinks();
+        helper.textContent = $('#consent').checked
+          ? 'Your details will be sent with the results.'
+          : 'Results will be sent without your personal details (no consent).';
       });
     })();
   </script>
