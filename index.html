@@ -1,72 +1,79 @@
 <!doctype html>
-<html lang="en" dir="ltr" data-theme="light">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Huizemark • Smart Match</title>
+  <title>Huizemark • Smart Match (Blessing Nsibande)</title>
 
-  <!-- Set theme BEFORE styles to prevent flash -->
-  <script>
-    (function(){
-      try {
-        var saved = localStorage.getItem('sm-theme'); // 'dark' | 'light' | null
-        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        var theme = saved || (prefersDark ? 'dark' : 'light');
-        document.documentElement.setAttribute('data-theme', theme);
-      } catch(e){}
-    })();
-  </script>
+  <!-- SEO essentials -->
+  <link rel="canonical" href="https://match.ncdigital.co.za/">
+  <meta name="description" content="Answer 5 quick questions and instantly see 2–10 Huizemark property matches. Book a viewing with Blessing Nsibande.">
+  <meta property="og:title" content="Huizemark Smart Match — Quick Property Matches">
+  <meta property="og:description" content="Get tailored Huizemark matches in seconds and book a viewing with Blessing.">
+  <meta property="og:url" content="https://match.ncdigital.co.za/">
+  <meta property="og:image" content="https://match.ncdigital.co.za/assets/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
 
+  <!-- Brand theme (light default) -->
   <style>
-    /* ============== THEME TOKENS ============== */
     :root{
-      --hz-orange:#f58220; --hz-grey:#4d4d4d;
-      --focus:#1d4ed8;
-      /* Defaults (light) to avoid unstyled flash if JS disabled */
-      --bg:#ffffff; --text:#222; --muted:#6b7280; --border:#e5e7eb; --card:#ffffff;
+      --hz-orange:#f58220; --hz-grey:#4d4d4d; --hz-bg:#ffffff; --hz-text:#222;
+      --hz-muted:#6b7280; --hz-border:#e5e7eb; --focus:#1d4ed8; --btn-text:#fff;
+      --card-bg:#ffffff;
     }
-    :root[data-theme="light"]{
-      --bg:#ffffff; --text:#222; --muted:#6b7280; --border:#e5e7eb; --card:#ffffff;
+    @media (prefers-color-scheme: dark) {
+      :root{
+        --hz-bg:#0b0b0c; --hz-text:#eaeaea; --hz-muted:#9aa0a6; --hz-border:#2a2a2d;
+        --card-bg:#141416;
+      }
     }
-    :root[data-theme="dark"]{
-      --bg:#0b0b0c; --text:#eaeaea; --muted:#9aa0a6; --border:#2a2a2d; --card:#141416;
+    .theme-dark{
+      --hz-bg:#0b0b0c; --hz-text:#eaeaea; --hz-muted:#9aa0a6; --hz-border:#2a2a2d;
+      --card-bg:#141416;
     }
 
-    /* ============== BASE & LAYOUT ============== */
-    html:focus-within{ scroll-behavior:smooth; }
-    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial; background:var(--bg); color:var(--text); }
-    .wrap{ max-width: 820px; margin: 24px auto; padding: 16px; }
-    .brand{ display:flex; align-items:center; gap:12px; }
-    .brand__logo{ height:64px; }
-    .toolbar{ margin-left:auto; display:flex; align-items:center; gap:10px; }
+    /* Base */
+    html:focus-within { scroll-behavior: smooth; }
+    body{ margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial;
+          background:var(--hz-bg); color:var(--hz-text); }
+    a{ color:var(--hz-orange); }
 
-    .card{ background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; margin-top:16px; }
-
+    /* Skip link */
     .skip-link{ position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
     .skip-link:focus{ left:8px; top:8px; width:auto; height:auto; padding:10px 12px; background:#111; color:#fff; border-radius:8px; z-index:9999; }
 
-    /* ============== FORMS ============== */
-    label{ display:block; margin:10px 0 6px; font-weight:600; }
-    input,select,button,textarea{ font:inherit; }
-    input,select,textarea{
-      width:100%; padding:12px; border:1px solid var(--border); border-radius:10px; background:transparent; color:var(--text);
+    /* Layout */
+    .wrap{ max-width: 780px; margin: 24px auto; padding: 0 16px; }
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .brand__logo{ height: 64px; }
+
+    .card{
+      background:var(--card-bg); border:1px solid var(--hz-border);
+      border-radius:12px; padding:20px; margin-top:16px;
     }
-    input:focus,select:focus,button:focus,a:focus,textarea:focus{ outline:3px solid var(--focus); outline-offset:2px; }
+    .toolbar{ margin-left:auto; display:flex; align-items:center; gap:10px; }
 
-    .row{ display:grid; gap:12px; grid-template-columns:1fr 1fr; }
-    @media (max-width:640px){ .row{ grid-template-columns:1fr; } }
+    /* Forms */
+    label{ display:block; margin:10px 0 4px; font-weight:600; }
+    input, select, button, textarea { font: inherit; }
+    input, select, textarea {
+      width:100%; padding:12px; border:1px solid var(--hz-border); border-radius:10px;
+      background:transparent; color:var(--hz-text);
+    }
+    input:focus, select:focus, button:focus, a:focus { outline: 3px solid var(--focus); outline-offset: 2px; }
 
-    /* ============== BUTTONS ============== */
-    .btn{ background:var(--hz-orange); color:#fff; border:0; border-radius:10px; padding:12px 16px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
+    /* Buttons */
+    .btn{ background:var(--hz-orange); color:var(--btn-text); border:0; border-radius:10px;
+          padding:12px 16px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
     .btn.secondary{ background:var(--hz-grey); }
-    .btn.ghost{ background:transparent; color:var(--text); border:1px solid var(--border); }
 
-    /* ============== TEXT ============== */
-    a{ color:var(--hz-orange); }
-    .muted{ color:var(--muted); font-size:.95rem; }
-    .results ol{ padding-left:1.2rem; }
+    /* Grid */
+    .row{ display:grid; gap:12px; grid-template-columns: 1fr 1fr; }
+    @media (max-width: 640px){ .row{ grid-template-columns:1fr; } }
+
+    .muted{ color:var(--hz-muted); font-size: 0.95rem; }
+    .results ol{ padding-left: 1.2rem; }
     .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
-    .pill{ display:inline-block; border:1px solid var(--border); border-radius:999px; padding:6px 10px; font-size:12px; margin:3px 6px 0 0; }
   </style>
 </head>
 <body>
@@ -74,7 +81,9 @@
 
   <header class="wrap" role="banner">
     <div class="brand" aria-label="Huizemark Smart Match header">
-      <img class="brand__logo" src="https://d21tw07c6rnmp0.cloudfront.net/media/uploads/94/theme-settings/2025/5/94_8a5e0d54687d41228f79c92853b42629.png" alt="Huizemark logo" loading="lazy" decoding="async" />
+      <img class="brand__logo"
+           src="https://d21tw07c6rnmp0.cloudfront.net/media/uploads/94/theme-settings/2025/5/94_8a5e0d54687d41228f79c92853b42629.png"
+           alt="Huizemark logo" loading="lazy" decoding="async" />
       <h1 style="margin:0">Smart Match</h1>
       <div class="toolbar" role="group" aria-label="Theme toggle">
         <button id="toggleTheme" class="btn secondary" type="button" aria-pressed="false" aria-label="Toggle dark mode">🌙 Dark mode</button>
@@ -83,13 +92,11 @@
   </header>
 
   <main id="main" class="wrap" role="main">
-    <!-- Intro -->
     <section class="card" aria-labelledby="intro-title">
-      <h2 id="intro-title" style="margin-top:0">Find 2–3 Huizemark properties fast</h2>
-      <p class="muted">We respect your privacy. We’ll ask consent first. All matches link to Blessing’s page.</p>
+      <h2 id="intro-title" style="margin-top:0">Find matching Huizemark properties fast</h2>
+      <p class="muted">We respect your privacy and POPIA. We’ll ask consent first.</p>
     </section>
 
-    <!-- Consent -->
     <section class="card" aria-labelledby="consent-title">
       <h2 id="consent-title" style="margin-top:0">Consent</h2>
       <p class="muted">
@@ -98,11 +105,12 @@
       </p>
     </section>
 
-    <!-- Preferences -->
+    <!-- PREFERENCES -->
     <section class="card" aria-labelledby="form-title">
       <h2 id="form-title" style="margin-top:0">Your preferences</h2>
       <form id="qform" aria-describedby="form-help" novalidate>
-        <p id="form-help" class="sr-only">Answer the following fields, then press the Show Matches button.</p>
+        <p id="form-help" class="sr-only">Answer the fields, then press the Show Matches button.</p>
+
         <div class="row">
           <div>
             <label for="budget">Max budget (R)</label>
@@ -115,6 +123,7 @@
             </select>
           </div>
         </div>
+
         <div class="row">
           <div>
             <label for="schools">Schools</label>
@@ -129,32 +138,48 @@
             </select>
           </div>
         </div>
-        <div>
-          <label for="approved">Bond pre-approved?</label>
-          <select id="approved" name="approved" aria-label="Bond pre-approval">
-            <option>Yes</option><option selected>No</option>
-          </select>
+
+        <div class="row">
+          <div>
+            <label for="approved">Bond pre-approved?</label>
+            <select id="approved" name="approved" aria-label="Bond pre-approval">
+              <option>Yes</option><option selected>No</option>
+            </select>
+          </div>
+          <div>
+            <label for="count">How many matches to show?</label>
+            <select id="count" name="count" aria-label="Number of results">
+              <option>1</option>
+              <option selected>3</option>
+              <option>5</option>
+              <option>10</option>
+            </select>
+            <div style="margin-top:6px">
+              <label>
+                <input type="checkbox" id="allowOverBudget" name="allowOverBudget">
+                Show a few great picks slightly above my budget (if close)
+              </label>
+            </div>
+          </div>
         </div>
 
         <div role="group" aria-label="Actions" style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
           <button class="btn" type="submit">Show Matches</button>
-          <button id="toggleOverBudget" class="btn ghost" type="button" aria-pressed="false" title="Include slightly-over-budget homes (≤10%)">Allow +10% budget</button>
-          <a id="whatsappTop" class="btn" href="https://wa.me/27821234567?text=Hi%20Blessing,%20please%20match%20me" target="_blank" rel="noopener" role="button" aria-label="Chat with Blessing on WhatsApp">WhatsApp Blessing</a>
-          <a id="emailTop" class="btn secondary" href="mailto:blessing@huizemark.co.za?subject=Smart%20Match%20Lead" role="button" aria-label="Email Blessing">Email Blessing</a>
+          <a id="whatsappTop" class="btn" href="https://wa.me/27662729016?text=Hi%20Blessing,%20please%20match%20me" target="_blank" rel="noopener" role="button" aria-label="Chat with Blessing on WhatsApp">WhatsApp Blessing</a>
+          <a id="emailTop" class="btn secondary" href="mailto:blessing@huizemark.co.za?subject=Smart Match Lead" role="button" aria-label="Email Blessing">Email Blessing</a>
         </div>
       </form>
     </section>
 
-    <!-- Results -->
+    <!-- RESULTS -->
     <section class="card results" aria-labelledby="results-title">
       <h2 id="results-title" style="margin-top:0">Top Matches</h2>
       <div id="out" aria-live="polite" aria-atomic="false">
         <p class="muted">Complete the form to see suggested properties.</p>
       </div>
-      <div id="summaryBlock" class="muted" style="white-space:pre-wrap; margin-top:10px; display:none;"></div>
     </section>
 
-    <!-- Lead capture -->
+    <!-- LEAD FORM -->
     <section class="card" aria-labelledby="lead-title">
       <h2 id="lead-title" style="margin-top:0">Send to Blessing</h2>
       <form id="lead" style="display:none" novalidate>
@@ -182,6 +207,22 @@
           </div>
         </div>
 
+        <div class="row" style="margin-top:8px">
+          <div>
+            <label for="cta">What would you like to do next?</label>
+            <select id="cta" name="cta" aria-label="Next step">
+              <option selected>Arrange a viewing</option>
+              <option>Request more photos/videos</option>
+              <option>Get bond pre-approval help</option>
+              <option>Call me back</option>
+            </select>
+          </div>
+          <div id="ctaDetailsWrap">
+            <label for="ctaDetails">Preferred time / details</label>
+            <input id="ctaDetails" name="ctaDetails" placeholder="e.g. Sat 11:00–12:00, or any weekday after 5pm">
+          </div>
+        </div>
+
         <div role="group" aria-label="Contact actions" style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
           <a id="wa" class="btn" target="_blank" rel="noopener" role="button" aria-label="Chat with Blessing on WhatsApp">Chat on WhatsApp</a>
           <a id="mailto" class="btn secondary" role="button" aria-label="Email Blessing">Email Blessing</a>
@@ -190,8 +231,8 @@
 
         <p id="status" class="muted" role="status" aria-live="polite" style="margin-top:8px"></p>
       </form>
-      <p class="muted" style="margin-top:12px">All results link back to
-        <a href="https://www.huizemark.com/agents/blessing-nsibande/75570/" target="_blank" rel="noopener">Blessing’s profile</a>.
+      <p class="muted" style="margin-top:12px">
+        All results link back to <a href="https://www.huizemark.com/agents/blessing-nsibande/75570/" target="_blank" rel="noopener">Blessing’s Huizemark profile</a>.
       </p>
     </section>
   </main>
@@ -200,215 +241,222 @@
     <div class="card" aria-label="Quick contact">
       <div style="display:flex; flex-wrap:wrap; gap:10px;">
         <a class="btn" href="https://wa.me/27662729016?text=Hi%20Blessing,%20please%20match%20me" target="_blank" rel="noopener">WhatsApp Blessing</a>
-        <a class="btn secondary" href="mailto:bnsibande@huizemark.com?subject=Smart%20Match%20Lead">Email Blessing</a>
+        <a class="btn secondary" href="mailto:blessing@huizemark.co.za?subject=Smart Match Lead">Email Blessing</a>
       </div>
     </div>
   </footer>
 
+  <!-- JSON-LD for RealEstateAgent -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"RealEstateAgent",
+    "name":"Huizemark — Blessing Nsibande",
+    "url":"https://match.ncdigital.co.za/",
+    "logo":"https://match.ncdigital.co.za/assets/huizemark-logo.png",
+    "image":"https://match.ncdigital.co.za/assets/og-image.jpg",
+    "areaServed":["Brakpan","Benoni","Ekurhuleni"],
+    "telephone":"+27-66-272-9016",
+    "sameAs":["https://www.huizemark.com/agents/blessing-nsibande/75570/"]
+  }
+  </script>
+
+  <!-- App logic -->
   <script>
-    /* ===================== DARK/LIGHT TOGGLE (persisted) ===================== */
+    /* ========= Dark mode toggle (persisted) ========= */
     (function(){
       const btn = document.getElementById('toggleTheme');
-      const root = document.documentElement;
+      const saved = localStorage.getItem('sm-theme'); // 'dark' | 'light' | null
+      if(saved === 'dark') document.documentElement.classList.add('theme-dark');
+      if(saved === 'light') document.documentElement.classList.remove('theme-dark');
 
-      function updateBtn(){
-        const isDark = root.getAttribute('data-theme') === 'dark';
+      function updateLabel(){
+        const isDark = document.documentElement.classList.contains('theme-dark');
         btn.setAttribute('aria-pressed', String(isDark));
         btn.textContent = isDark ? '☀️ Light mode' : '🌙 Dark mode';
       }
-      updateBtn();
+      updateLabel();
 
       btn.addEventListener('click', ()=>{
-        const current = root.getAttribute('data-theme') || 'light';
-        const next = current === 'dark' ? 'light' : 'dark';
-        root.setAttribute('data-theme', next);
-        try { localStorage.setItem('sm-theme', next); } catch(e){}
-        updateBtn();
+        document.documentElement.classList.toggle('theme-dark');
+        const isDark = document.documentElement.classList.contains('theme-dark');
+        localStorage.setItem('sm-theme', isDark ? 'dark' : 'light');
+        updateLabel();
       });
-
-      btn.addEventListener('keydown', (e)=>{ if(e.code==='Space'){ e.preventDefault(); btn.click(); }});
+      btn.addEventListener('keydown', (e)=>{ if(e.code === 'Space'){ e.preventDefault(); btn.click(); } });
     })();
 
-    /* ===================== DATA & MATCHING ===================== */
+    /* ========= Data source =========
+       If hosting on GitHub Pages under same domain:
+       Use a relative path to avoid CORS issues.
+    */
+    const STOCK_URL = '/data/listings.json';
+
+    // Optional built-in fallback to avoid "no matches"
+    window.FALLBACK_STOCK = [];
+
     async function loadStock(){
       try{
-        const res = await fetch('data/listings.json', {cache:'no-store'});
-        if(!res.ok) throw new Error('HTTP '+res.status);
-        const data = await res.json();
-        return Array.isArray(data) ? data : [];
+        const r = await fetch(STOCK_URL, {cache: 'no-store'});
+        if(!r.ok) throw new Error('HTTP '+r.status);
+        return await r.json();
       }catch(e){
-        console.warn('Failed to load listings.json', e);
-        return [];
+        console.warn('Could not fetch live stock, using fallback', e);
+        return window.FALLBACK_STOCK || [];
       }
     }
 
-    function scoreLead(ans, x){
+    /* ========= Helpers ========= */
+    function fmtRand(n){ try{ return 'R' + Number(n||0).toLocaleString('en-ZA'); }catch(_){ return 'R' + (n||0); } }
+    function bedsLabel(v){ return (v==null || v===undefined) ? 'N/A' : String(v); }
+    function joinBlocks(blocks){ return blocks.filter(Boolean).join('\n\n'); }
+    function numeric(val){ return parseInt(String(val||"").replace(/\D/g,"")||"0",10); }
+
+    function scoreLead(ans,x){
       let s=0;
-      if((+ans.beds.replace(/\D/g,'')||2) <= (x.beds||0)) s+=10;
-      if(ans.schools) s += 10;
-      if(ans.garden) s += 5;
-      if(String(ans.approved).toLowerCase()==='yes') s+=60;
+      // soft scoring (we still enforce budget separately)
+      const budget = numeric(ans.budget);
+      if(budget >= (x.price||Infinity)) s+=15;
+      const wanted = parseInt(String(ans.beds||"2").replace("+","")||"2",10);
+      if(wanted <= (x.beds||0)) s+=10;
+      if(ans.schools===x.schools) s+=10;   // only if you store schools in JSON
+      if(ans.garden===x.garden) s+=5;      // only if you store garden in JSON
+      if(String(ans.approved).toLowerCase()==="yes") s+=60;
       return s;
     }
 
-    function withinBudget(price, budget, allowOver10){
-      if(!budget) return true;
-      const b = parseInt(String(budget).replace(/\D/g,''),10)||0;
-      if(price<=b) return true;
-      if(allowOver10 && price <= Math.round(b*1.10)) return true;
-      return false;
-    }
+    /* ========= Main ========= */
+    (async function(){
+      const qform = document.getElementById('qform');
+      const out   = document.getElementById('out');
+      const lead  = document.getElementById('lead');
+      const statusEl = document.getElementById('status');
+      const waTop = document.getElementById('whatsappTop');
+      const mailTop = document.getElementById('emailTop');
+      const waBtn = document.getElementById('wa');
+      const mailBtn = document.getElementById('mailto');
 
-    function cleanTitle(title){
-      return (title||'').replace(/\b\d+\s*bed(?:room)?s?\b/i,'').replace(/\s{2,}/g,' ').trim();
-    }
+      const STOCK = await loadStock();
 
-    function buildSummary(ans, matches){
-      const header = [
-        "Hi Blessing, please see my Smart Match results:",
-        `Budget: R${ans.budget}`,
-        `Beds wanted: ${ans.beds}`,
-        `Schools: ${ans.schools}`,
-        `Garden: ${ans.garden}`,
-        `Pre-approved: ${ans.approved}`,
-        "",
-        "Matches:"
-      ].join("\n");
+      // Base summary text holder (without personal details)
+      let baseSummary = "";
 
-      const items = matches.map(m => {
-        const x = m.x;
-        return [
-          `• ${x.title}`,
-          `  WebRef: ${x.ref}`,
-          `  Price: R${(x.price||0).toLocaleString('en-ZA')}`,
-          `  Beds: ${x.beds}`,
-          `  Area: ${x.area}`,
-          `  Link: ${x.url}`
-        ].join("\n");
+      qform.addEventListener('submit', (e)=>{
+        e.preventDefault();
+        const ans = Object.fromEntries(new FormData(qform).entries());
+        const wantCount = Math.max(1, parseInt(ans.count || '3', 10));
+        const allowOver = !!document.getElementById('allowOverBudget')?.checked;
+
+        const scored = STOCK.map(x => ({ x, score: scoreLead(ans, x) }));
+
+        // Strict budget first
+        const budgetNum = numeric(ans.budget);
+        const STRICT = scored.filter(m => (m.x.price||Infinity) <= budgetNum);
+        // Near budget within +8%
+        const NEAR = scored.filter(m => (m.x.price||Infinity) > budgetNum && (m.x.price - budgetNum)/Math.max(1,budgetNum) <= 0.08);
+
+        STRICT.sort((a,b)=>b.score-a.score);
+        NEAR.sort((a,b)=>b.score-a.score);
+
+        let chosen = STRICT.slice(0, wantCount);
+        if (chosen.length < wantCount && allowOver) {
+          chosen = chosen.concat(NEAR.slice(0, wantCount - chosen.length));
+        }
+        if (chosen.length === 0 && scored.length) {
+          chosen = scored.sort((a,b)=>b.score-a.score).slice(0, Math.min(wantCount, scored.length));
+        }
+
+        const listHtml = chosen.map(m => (
+          `<li>
+             <a href="${m.x.url}" target="_blank" rel="noopener">${m.x.title}</a>
+             <span class="muted"> (WebRef ${m.x.ref || '—'}) — ${fmtRand(m.x.price)} — Beds: ${bedsLabel(m.x.beds)} — ${m.x.area || ''}</span>
+           </li>`
+        )).join("");
+
+        out.innerHTML = chosen.length
+          ? `<ol>${listHtml}</ol>${
+              (Math.max(...chosen.map(m=>m.score))>=80
+                ? '<p><strong>Hot lead:</strong> Would you like a viewing? Choose a time and we’ll confirm with Blessing.</p>'
+                : '<p><strong>Tip:</strong> Not pre-approved? We can connect you to a bond originator for a quick check.</p>')}`
+          : `<p>No matches yet. Try adjusting budget/bedrooms. You can also message Blessing directly below.</p>`;
+
+        const matchesBlocks = chosen.map(m => {
+          const lines = [
+            `• ${m.x.title}`,
+            `  WebRef: ${m.x.ref || '—'}`,
+            `  Price: ${fmtRand(m.x.price)}`,
+            `  Beds: ${bedsLabel(m.x.beds)}`,
+            `  Area: ${m.x.area || ''}`,
+            `  Link: ${m.x.url}`
+          ];
+          return lines.join('\n');
+        });
+
+        baseSummary = joinBlocks([
+          `Hi Blessing, please see my Smart Match results:`,
+          `Budget: ${fmtRand(budgetNum)}`,
+          `Beds wanted: ${ans.beds}`,
+          `Schools: ${ans.schools}`,
+          `Garden: ${ans.garden}`,
+          `Pre-approved: ${ans.approved}`,
+          ``,
+          `Matches:`,
+          ...matchesBlocks
+        ]);
+
+        // Prefill quick-contact buttons (user can send immediately)
+        waTop.href = `https://wa.me/27662729016?text=${encodeURIComponent(baseSummary)}`;
+        mailTop.href = `mailto:blessing@huizemark.co.za?subject=Smart Match Lead&body=${encodeURIComponent(baseSummary)}`;
+
+        // Reveal lead form
+        lead.style.display = 'block';
+        lead.setAttribute('tabindex','-1'); lead.focus();
+        statusEl.textContent = "";
       });
 
-      return header + "\n\n" + items.join("\n\n");
-    }
+      // Lead submit: append buyer details + CTA
+      lead.addEventListener('submit', (e)=>{
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(lead).entries());
 
-    function renderPills(matches){
-      return matches.map(m=>{
-        const x=m.x;
-        return `<span class="pill">${x.area}</span><span class="pill">R${(x.price||0).toLocaleString('en-ZA')}</span><span class="pill">${x.beds} bed</span>`;
-      }).join(' ');
-    }
+        if (String(data.consent).toUpperCase() !== 'YES'){
+          statusEl.textContent = "We need consent to send your details.";
+          return;
+        }
+        if (data.cta === 'Get bond pre-approval help' && !data.ctaDetails) {
+          data.ctaDetails = 'Please refer me to a bond originator for a quick check.';
+        }
 
-    const qform = document.getElementById('qform');
-    const out   = document.getElementById('out');
-    const lead  = document.getElementById('lead');
-    const statusEl = document.getElementById('status');
-    const waBtn = document.getElementById('wa');
-    const mailBtn = document.getElementById('mailto');
-    const whatsappTop = document.getElementById('whatsappTop');
-    const emailTop = document.getElementById('emailTop');
-    const summaryBlock = document.getElementById('summaryBlock');
-    const toggleOverBudgetBtn = document.getElementById('toggleOverBudget');
+        const full = joinBlocks([
+          baseSummary,
+          `---`,
+          `BUYER DETAILS`,
+          `Name: ${data.name}`,
+          `Email: ${data.email}`,
+          `Phone: ${data.phone}`,
+          `Next step: ${data.cta}`,
+          data.ctaDetails ? `Details: ${data.ctaDetails}` : ''
+        ]);
 
-    let allowOver10 = false;
-    toggleOverBudgetBtn.addEventListener('click', ()=>{
-      allowOver10 = !allowOver10;
-      toggleOverBudgetBtn.setAttribute('aria-pressed', String(allowOver10));
-      toggleOverBudgetBtn.textContent = allowOver10 ? 'Limit to budget' : 'Allow +10% budget';
-      if(qform.dataset.lastAns){
-        const ans = JSON.parse(qform.dataset.lastAns);
-        runMatch(ans);
+        waBtn.href   = `https://wa.me/27662729016?text=${encodeURIComponent(full)}`;
+        mailBtn.href = `mailto:blessing@huizemark.co.za?subject=Smart Match Lead&body=${encodeURIComponent(full)}`;
+        // Also update top buttons now that we have details
+        document.getElementById('whatsappTop').href =
+          `https://wa.me/27662729016?text=${encodeURIComponent(full)}`;
+        document.getElementById('emailTop').href =
+          `mailto:blessing@huizemark.co.za?subject=Smart Match Lead&body=${encodeURIComponent(full)}`;
+
+        statusEl.textContent = "Thanks! Your message is ready — tap WhatsApp or Email.";
+        // Auto-open WhatsApp? Uncomment:
+        // window.location.href = waBtn.href;
+      });
+
+      // Accessibility: let Enter/Space activate top anchor-buttons
+      for (const el of [document.getElementById('whatsappTop'), document.getElementById('emailTop')]) {
+        el.setAttribute('tabindex','0');
+        el.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); el.click(); } });
       }
-    });
-
-    let STOCK = [];
-    loadStock().then(d=>{ STOCK=d; });
-
-    qform.addEventListener('submit', (e)=>{
-      e.preventDefault();
-      const ans = Object.fromEntries(new FormData(qform).entries());
-      qform.dataset.lastAns = JSON.stringify(ans);
-      runMatch(ans);
-    });
-
-    function runMatch(ans){
-      const budget = parseInt(String(ans.budget||'').replace(/\D/g,''),10)||0;
-      const candidates = STOCK.filter(x => withinBudget(x.price||0, budget, allowOver10));
-
-      const ranked = candidates.map(x=>({x, score: scoreLead(ans,x)}))
-        .sort((a,b)=> b.score - a.score || (a.x.price||0)-(b.x.price||0))
-        .slice(0,3);
-
-      if(ranked.length===0 && !allowOver10){
-        out.innerHTML = `<p>No matches within budget. You can <strong>Allow +10% budget</strong> above to see close-fit homes.</p>`;
-        summaryBlock.style.display='none';
-        lead.style.display='none';
-        return;
-      }
-      if(ranked.length===0 && allowOver10){
-        out.innerHTML = `<p>No matches found. Try adjusting your preferences.</p>`;
-        summaryBlock.style.display='none';
-        lead.style.display='none';
-        return;
-      }
-
-      const listHtml = ranked.map(m=>{
-        const x=m.x;
-        return `<li>
-          <a href="${x.url}" target="_blank" rel="noopener">${cleanTitle(x.title)}</a>
-          <div class="muted">WebRef ${x.ref} • R${(x.price||0).toLocaleString('en-ZA')} • ${x.beds} bed • ${x.area}</div>
-        </li>`;
-      }).join("");
-
-      const hot = Math.max(...ranked.map(m=>m.score))>=80;
-      out.innerHTML = `
-        <div style="margin-bottom:8px">${renderPills(ranked)}</div>
-        <ol>${listHtml}</ol>
-        ${hot
-          ? '<p><strong>Hot lead:</strong> Would you like a viewing? Choose a time and we’ll confirm with Blessing.</p>'
-          : '<p class="muted">Tip: Not pre-approved? We can connect you to a bond originator for a quick check.</p>'}
-      `;
-
-      const summary = buildSummary(ans, ranked);
-      summaryBlock.textContent = summary;
-      summaryBlock.style.display = 'block';
-
-      const waText = encodeURIComponent(summary);
-      const subject = encodeURIComponent('Smart Match Lead');
-      const body = encodeURIComponent(summary);
-
-      whatsappTop.href = `https://wa.me/27662729016?text=${waText}`;
-      emailTop.href    = `mailto:bnsibande@huizemark.com?subject=${subject}&body=${body}`;
-
-      waBtn.href   = `https://wa.me/27662729016?text=${waText}`;
-      mailBtn.href = `mailto:bnsibande@huizemark.com?subject=${subject}&body=${body}`;
-
-      lead.style.display = 'block';
-      lead.setAttribute('tabindex','-1');
-      lead.focus();
-      statusEl.textContent = "";
-    }
-
-    lead.addEventListener('submit', (e)=>{
-      e.preventDefault();
-      const formData = Object.fromEntries(new FormData(lead).entries());
-      if(String(formData.consent).toUpperCase()!=='YES'){
-        statusEl.textContent = "We need consent to send your details.";
-        return;
-      }
-      const base = summaryBlock.textContent || '';
-      const full = `${base}\n\nNAME: ${formData.name}\nPHONE: ${formData.phone}`;
-      const waText = encodeURIComponent(full);
-      const subject = encodeURIComponent('Smart Match Lead');
-      const body = encodeURIComponent(full);
-      waBtn.href   = `https://wa.me/27662729016?text=${waText}`;
-      mailBtn.href = `mailto:bnsibande@huizemark.com?subject=${subject}&body=${body}`;
-      statusEl.textContent = "Thanks! Use the buttons above to contact Blessing.";
-      // window.location.href = waBtn.href; // optional auto-open
-    });
-
-    for(const el of [whatsappTop, emailTop]){
-      el.setAttribute('tabindex','0');
-      el.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); el.click(); }});
-    }
+    })();
   </script>
 </body>
 </html>
