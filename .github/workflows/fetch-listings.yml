@@ -1,17 +1,17 @@
-name: Fetch Huizemark Stock (nightly)
+name: Fetch Huizemark Stock (nightly, debug)
 
 on:
   schedule:
-    # runs every day at 02:15 UTC (about 04:15 South Africa in winter; 04:15/05:15 depending on DST elsewhere)
+    # every day at 02:15 UTC
     - cron: "15 2 * * *"
-  workflow_dispatch: {}   # a manual "Run workflow" button in the Actions tab
+  workflow_dispatch: {}   # manual Run button
   push:
     paths:
       - "scripts/fetch_stock.py"
       - ".github/workflows/fetch-listings.yml"
 
 permissions:
-  contents: write   # allow the bot to commit changes back to the repo
+  contents: write  # allow committing data/listings.json back to repo
 
 jobs:
   update-listings:
@@ -21,7 +21,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # we want history so we can commit back
+          fetch-depth: 0
+
+      - name: Show repo tree (quick sanity)
+        run: |
+          pwd
+          ls -la
+          echo "-----"
+          ls -la data || true
+          echo "-----"
+          ls -la scripts || true
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -33,46 +42,54 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4 lxml html5lib
 
-      - name: Run fetch_stock.py (agent 75570 only)
+      - name: Verify imports (fast fail if missing)
         run: |
-          python scripts/fetch_stock.py
+          python - << 'PY'
+          try:
+              import requests, bs4, lxml, html5lib
+              print("✅ imports OK")
+          except Exception as e:
+              print("❌ import failed:", e)
+              raise
+          PY
 
-      # OPTIONAL EXTRAS: build Canva CSV + sitemap (uncomment if you use them)
-      # - name: Build Canva CSV from listings
-      #   run: |
-      #     python scripts/make_canva_csv.py
-      #
-      # - name: Build sitemap.xml
-      #   run: |
-      #     python - << 'PY'
-      #     import json, datetime, html
-      #     now = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-      #     data = [{"loc":"https://match.ncdigital.co.za/","priority":"1.0"}]
-      #     try:
-      #         items = json.load(open("data/listings.json","r",encoding="utf-8"))
-      #         for it in items:
-      #             url = (it.get("url") or "").strip()
-      #             if not url: continue
-      #             data.append({"loc":url,"priority":"0.5"})
-      #     except Exception:
-      #         pass
-      #     def line(u,p):
-      #         return f"<url><loc>{html.escape(u)}</loc><lastmod>{now}</lastmod><changefreq>daily</changefreq><priority>{p}</priority></url>"
-      #     body = "\n".join(line(d["loc"], d["priority"]) for d in data)
-      #     xml = f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{body}</urlset>'
-      #     open("sitemap.xml","w",encoding="utf-8").write(xml)
-      #     PY
+      - name: Quick network check (agent page)
+        run: |
+          curl -I --location --max-time 20 "https://www.huizemark.com/agents/blessing-nsibande/75570/" || true
+          curl -I --location --max-time 20 "https://www.huizemark.com/results/agent/75570/" || true
+
+      - name: Run fetch_stock.py (agent 75570)
+        id: fetch
+        run: |
+          set -e
+          python --version
+          python scripts/fetch_stock.py
+          echo "----- data dir after run -----"
+          ls -la data || true
+
+      - name: Show git diff (what changed)
+        run: |
+          git status
+          git diff --stat || true
 
       - name: Commit changes (if any)
         run: |
           git config user.name  "smartmatch-bot"
           git config user.email "bot@users.noreply.github.com"
-          if [[ -n "$(git status --porcelain data/listings.json debug_skipped.json canva/ sitemap.xml)" ]]; then
+          if [[ -n "$(git status --porcelain data/listings.json debug_skipped.json)" ]]; then
             git add data/listings.json debug_skipped.json || true
-            git add canva/bulk_create.csv canva/bulk_create.json || true
-            git add sitemap.xml || true
-            git commit -m "Auto-update listings & assets (nightly)"
+            git commit -m "Auto-update listings.json (agent 75570)"
             git push
           else
             echo "No changes to commit."
           fi
+
+      - name: Upload artifacts (inspect if failure)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartmatch-artifacts
+          path: |
+            data/listings.json
+            debug_skipped.json
+          if-no-files-found: warn
