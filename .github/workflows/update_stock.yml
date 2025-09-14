@@ -1,0 +1,45 @@
+name: Update Huizemark Stock JSON
+
+on:
+  workflow_dispatch: {}          # run manually from the Actions tab
+  schedule:
+    - cron: "17 5 * * *"         # run daily at 05:17 UTC (change as you like)
+  push:
+    paths:
+      - scripts/fetch_stock.py    # re-run if scraper changes
+      - .github/workflows/update_stock.yml
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write             # allow committing back to the repo
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run scraper
+        run: |
+          python scripts/fetch_stock.py
+
+      - name: Commit changes (if any)
+        run: |
+          if [[ -n $(git status --porcelain smart-match/data/listings.json) ]]; then
+            git config user.name "smartmatch-bot"
+            git config user.email "smartmatch-bot@users.noreply.github.com"
+            git add smart-match/data/listings.json
+            git commit -m "chore: update listings.json [skip ci]"
+            git push
+          else
+            echo "No changes to commit."
+          fi
