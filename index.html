@@ -14,7 +14,7 @@
   <meta property="og:image" content="https://match.ncdigital.co.za/assets/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
 
-  <!-- Brand theme (light default) -->
+  <!-- Theme (light default; dark via class) -->
   <style>
     :root{
       --hz-orange:#f58220; --hz-grey:#4d4d4d; --hz-bg:#ffffff; --hz-text:#222;
@@ -23,13 +23,11 @@
     }
     @media (prefers-color-scheme: dark) {
       :root{
-        --hz-bg:#0b0b0c; --hz-text:#eaeaea; --hz-muted:#9aa0a6; --hz-border:#2a2a2d;
-        --card-bg:#141416;
+        --hz-bg:#0b0b0c; --hz-text:#eaeaea; --hz-muted:#9aa0a6; --hz-border:#2a2a2d; --card-bg:#141416;
       }
     }
     .theme-dark{
-      --hz-bg:#0b0b0c; --hz-text:#eaeaea; --hz-muted:#9aa0a6; --hz-border:#2a2a2d;
-      --card-bg:#141416;
+      --hz-bg:#0b0b0c; --hz-text:#eaeaea; --hz-muted:#9aa0a6; --hz-border:#2a2a2d; --card-bg:#141416;
     }
 
     /* Base */
@@ -212,8 +210,7 @@
             <label for="cta">What would you like to do next?</label>
             <select id="cta" name="cta" aria-label="Next step">
               <option selected>Arrange a viewing</option>
-              <option>Complete an OTP</option>
-              <option>Request more details</option>
+              <option>Request more photos/videos</option>
               <option>Get bond pre-approval help</option>
               <option>Call me back</option>
             </select>
@@ -242,7 +239,7 @@
     <div class="card" aria-label="Quick contact">
       <div style="display:flex; flex-wrap:wrap; gap:10px;">
         <a class="btn" href="https://wa.me/27662729016?text=Hi%20Blessing,%20please%20match%20me" target="_blank" rel="noopener">WhatsApp Blessing</a>
-        <a class="btn secondary" href="mailto:bnsibande@huizemark.com?subject=Smart Match Lead">Email Blessing</a>
+        <a class="btn secondary" href="mailto:blessing@huizemark.co.za?subject=Smart Match Lead">Email Blessing</a>
       </div>
     </div>
   </footer>
@@ -256,7 +253,7 @@
     "url":"https://match.ncdigital.co.za/",
     "logo":"https://match.ncdigital.co.za/assets/huizemark-logo.png",
     "image":"https://match.ncdigital.co.za/assets/og-image.jpg",
-    "areaServed":["Brakpan","Benoni", "Crystal-Park", "Ekurhuleni"],
+    "areaServed":["Brakpan","Benoni","Ekurhuleni"],
     "telephone":"+27-66-272-9016",
     "sameAs":["https://www.huizemark.com/agents/blessing-nsibande/75570/"]
   }
@@ -287,14 +284,9 @@
       btn.addEventListener('keydown', (e)=>{ if(e.code === 'Space'){ e.preventDefault(); btn.click(); } });
     })();
 
-    /* ========= Data source =========
-       If hosting on GitHub Pages under same domain:
-       Use a relative path to avoid CORS issues.
-    */
-    const STOCK_URL = '/data/listings.json';
-
-    // Optional built-in fallback to avoid "no matches"
-    window.FALLBACK_STOCK = [];
+    /* ========= Data source ========= */
+    const STOCK_URL = '/data/listings.json';  // served by GitHub Pages (same origin)
+    window.FALLBACK_STOCK = [];               // optional built-in fallback
 
     async function loadStock(){
       try{
@@ -313,17 +305,35 @@
     function joinBlocks(blocks){ return blocks.filter(Boolean).join('\n\n'); }
     function numeric(val){ return parseInt(String(val||"").replace(/\D/g,"")||"0",10); }
 
+    // Soft score (we also enforce budget separately)
     function scoreLead(ans,x){
       let s=0;
-      // soft scoring (we still enforce budget separately)
       const budget = numeric(ans.budget);
       if(budget >= (x.price||Infinity)) s+=15;
       const wanted = parseInt(String(ans.beds||"2").replace("+","")||"2",10);
       if(wanted <= (x.beds||0)) s+=10;
-      if(ans.schools===x.schools) s+=10;   // only if you store schools in JSON
-      if(ans.garden===x.garden) s+=5;      // only if you store garden in JSON
       if(String(ans.approved).toLowerCase()==="yes") s+=60;
       return s;
+    }
+
+    // Sort helpers: closest to budget first (within budget), then closest over
+    function sortStrictByCloseness(budget){
+      return (a,b)=>{
+        const da = budget - (a.x.price||0);
+        const db = budget - (b.x.price||0);
+        if (da !== db) return da - db;                 // smaller gap first
+        if ((b.x.price||0) !== (a.x.price||0)) return (b.x.price||0) - (a.x.price||0); // higher price first
+        return b.score - a.score;                      // tie-breaker by score
+      };
+    }
+    function sortNearByCloseness(budget){
+      return (a,b)=>{
+        const da = (a.x.price||Infinity) - budget;
+        const db = (b.x.price||Infinity) - budget;
+        if (da !== db) return da - db;                 // closer over-budget first
+        if ((b.x.price||0) !== (a.x.price||0)) return (b.x.price||0) - (a.x.price||0);
+        return b.score - a.score;
+      };
     }
 
     /* ========= Main ========= */
@@ -338,35 +348,46 @@
       const mailBtn = document.getElementById('mailto');
 
       const STOCK = await loadStock();
-
-      // Base summary text holder (without personal details)
-      let baseSummary = "";
+      let baseSummary = "";  // updated after matches are built
 
       qform.addEventListener('submit', (e)=>{
         e.preventDefault();
         const ans = Object.fromEntries(new FormData(qform).entries());
         const wantCount = Math.max(1, parseInt(ans.count || '3', 10));
         const allowOver = !!document.getElementById('allowOverBudget')?.checked;
+        const budgetNum = numeric(ans.budget);
+        const isApproved = String(ans.approved).toLowerCase()==='yes';
 
         const scored = STOCK.map(x => ({ x, score: scoreLead(ans, x) }));
 
-        // Strict budget first
-        const budgetNum = numeric(ans.budget);
-        const STRICT = scored.filter(m => (m.x.price||Infinity) <= budgetNum);
-        // Near budget within +8%
-        const NEAR = scored.filter(m => (m.x.price||Infinity) > budgetNum && (m.x.price - budgetNum)/Math.max(1,budgetNum) <= 0.08);
+        // Strict budget set (<= budget), sorted by "closest to budget, higher price first"
+        const STRICT = scored
+          .filter(m => (m.x.price||Infinity) <= budgetNum)
+          .sort(sortStrictByCloseness(budgetNum));
 
-        STRICT.sort((a,b)=>b.score-a.score);
-        NEAR.sort((a,b)=>b.score-a.score);
+        // Near-budget set (within +8%), sorted by closeness above budget
+        const NEAR = scored
+          .filter(m => (m.x.price||Infinity) > budgetNum && (m.x.price - budgetNum)/Math.max(1,budgetNum) <= 0.08)
+          .sort(sortNearByCloseness(budgetNum));
 
         let chosen = STRICT.slice(0, wantCount);
         if (chosen.length < wantCount && allowOver) {
           chosen = chosen.concat(NEAR.slice(0, wantCount - chosen.length));
         }
         if (chosen.length === 0 && scored.length) {
-          chosen = scored.sort((a,b)=>b.score-a.score).slice(0, Math.min(wantCount, scored.length));
+          // fallback: best overall by closeness (absolute diff), then score
+          chosen = scored
+            .slice()
+            .sort((a,b)=>{
+              const da = Math.abs((a.x.price||0) - budgetNum);
+              const db = Math.abs((b.x.price||0) - budgetNum);
+              if (da !== db) return da - db;
+              return b.score - a.score;
+            })
+            .slice(0, Math.min(wantCount, scored.length));
         }
 
+        // Render results
         const listHtml = chosen.map(m => (
           `<li>
              <a href="${m.x.url}" target="_blank" rel="noopener">${m.x.title}</a>
@@ -374,13 +395,15 @@
            </li>`
         )).join("");
 
+        const preapproveMsg = isApproved
+          ? '<p><strong>Nice!</strong> You’re pre-approved — let’s book a viewing. Pick a time and Blessing will confirm.</p>'
+          : '<p><strong>Tip:</strong> Not pre-approved? We can connect you to a bond originator for a quick check.</p>';
+
         out.innerHTML = chosen.length
-          ? `<ol>${listHtml}</ol>${
-              (Math.max(...chosen.map(m=>m.score))>=80
-                ? '<p><strong>Hot lead:</strong> Would you like a viewing? Choose a time and we’ll confirm with Blessing.</p>'
-                : '<p><strong>Tip:</strong> Not pre-approved? We can connect you to a bond originator for a quick check.</p>')}`
+          ? `<ol>${listHtml}</ol>${preapproveMsg}`
           : `<p>No matches yet. Try adjusting budget/bedrooms. You can also message Blessing directly below.</p>`;
 
+        // Build summary (without personal details yet)
         const matchesBlocks = chosen.map(m => {
           const lines = [
             `• ${m.x.title}`,
@@ -405,7 +428,7 @@
           ...matchesBlocks
         ]);
 
-        // Prefill quick-contact buttons (user can send immediately)
+        // Prefill quick-contact buttons with base summary
         waTop.href = `https://wa.me/27662729016?text=${encodeURIComponent(baseSummary)}`;
         mailTop.href = `mailto:blessing@huizemark.co.za?subject=Smart Match Lead&body=${encodeURIComponent(baseSummary)}`;
 
@@ -415,7 +438,7 @@
         statusEl.textContent = "";
       });
 
-      // Lead submit: append buyer details + CTA
+      // Lead submit: append buyer details + CTA and update ALL buttons
       lead.addEventListener('submit', (e)=>{
         e.preventDefault();
         const data = Object.fromEntries(new FormData(lead).entries());
@@ -439,16 +462,18 @@
           data.ctaDetails ? `Details: ${data.ctaDetails}` : ''
         ]);
 
+        // Update bottom buttons
         waBtn.href   = `https://wa.me/27662729016?text=${encodeURIComponent(full)}`;
         mailBtn.href = `mailto:blessing@huizemark.co.za?subject=Smart Match Lead&body=${encodeURIComponent(full)}`;
-        // Also update top buttons now that we have details
+
+        // Also update top quick buttons now that we have details
         document.getElementById('whatsappTop').href =
           `https://wa.me/27662729016?text=${encodeURIComponent(full)}`;
         document.getElementById('emailTop').href =
           `mailto:blessing@huizemark.co.za?subject=Smart Match Lead&body=${encodeURIComponent(full)}`;
 
-        statusEl.textContent = "Thanks! Your message is ready — tap WhatsApp or Email.";
-        // Auto-open WhatsApp? Uncomment:
+        statusEl.textContent = "Thanks! Your details are attached — tap WhatsApp or Email to send.";
+        // To auto-open WhatsApp after submit, uncomment:
         // window.location.href = waBtn.href;
       });
 
