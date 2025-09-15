@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Huizemark • Smart Match (Blessing Nsibande)</title>
 
+  <!-- 🧸 SIMPLE NOTES (maintenance):
+       - This file is ONE page that does buyers + sellers.
+       - Results come from /data/listings.json (GitHub Action updates nightly).
+       - Change agent phone/email below in the CONFIG section.
+       - Dark mode is manual (button). We removed "auto dark" to avoid confusion.
+       - We only show matches when user is verified (email + SA phone + code).
+       - WhatsApp/Email buttons include the full summary once verified. -->
+
   <!-- Favicon -->
   <link rel="icon" type="image/png"
         href="https://d21tw07c6rnmp0.cloudfront.net/media/uploads/94/theme-settings/2025/5/94_8a5e0d54687d41228f79c92853b42629.png">
@@ -18,16 +26,18 @@
   <meta name="format-detection" content="telephone=no">
 
   <style>
+    /* 🎨 BRAND THEME TOKENS (only manual toggle, no auto-dark to avoid conflicts) */
     :root{
       --hz-orange:#f58220; --hz-grey:#4d4d4d; --hz-bg:#ffffff; --hz-text:#222;
       --hz-muted:#6b7280; --hz-border:#e5e7eb; --btn-text:#fff; --card-bg:#ffffff;
-      color-scheme: light dark;
+      color-scheme: light;
     }
     .theme-dark{
       --hz-bg:#0b0b0c; --hz-text:#eaeaea; --hz-muted:#9aa0a6; --hz-border:#2a2a2d; --card-bg:#141416;
       color-scheme: dark;
     }
 
+    /* 🧱 LAYOUT + BASICS */
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial;background:var(--hz-bg);color:var(--hz-text)}
     a{color:var(--hz-orange)}
     .wrap{max-width:780px;margin:24px auto;padding:0 16px}
@@ -37,7 +47,7 @@
     label{display:block;margin:10px 0 4px;font-weight:600}
     input,select,button,textarea{font:inherit}
     input,select,textarea{width:100%;padding:12px;border:1px solid var(--hz-border);border-radius:10px;background:transparent;color:var(--hz-text)}
-    /* Dark inputs/dropdowns */
+    /* Dark inputs/dropdowns are truly dark */
     .theme-dark input,.theme-dark select,.theme-dark textarea{background:#0f0f10;color:#eaeaea;border-color:#2a2a2d}
     .theme-dark select option{background:#0f0f10;color:#eaeaea}
 
@@ -292,12 +302,16 @@
   </footer>
 
   <script>
-    /* CONFIG */
-    const AGENT_PHONE_E164 = '27662729016';
+    /* ======================
+       CONFIG (change me)
+       ====================== */
+    const AGENT_PHONE_E164 = '27662729016';          // WhatsApp (no '+')
     const AGENT_EMAIL      = 'blessing@huizemark.co.za';
-    const STOCK_URL        = '/data/listings.json';
+    const STOCK_URL        = '/data/listings.json';  // nightly-updated file
 
-    /* THEME */
+    /* ======================
+       THEME (manual toggle)
+       ====================== */
     (function(){
       const root = document.documentElement;
       const btn  = document.getElementById('toggleTheme');
@@ -316,7 +330,9 @@
       });
     })();
 
-    /* DETER casual copy/inspect/print (not bulletproof; allow inputs) */
+    /* ======================
+       DETER casual copy/inspect/print (not bulletproof; allow inputs)
+       ====================== */
     document.addEventListener('contextmenu', e => {
       const t = e.target;
       if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
@@ -334,12 +350,14 @@
       }
     });
 
-    /* HELPERS */
+    /* ======================
+       HELPERS
+       ====================== */
     const $ = sel => document.querySelector(sel);
-    const fmtRand = n => 'R' + Number(n||0).toLocaleString('en-ZA');
-    const bedsLbl = v => (v==null? 'N/A' : String(v));
-    const numeric = v => parseInt(String(v||'').replace(/\D/g,'' )||'0',10);
-    const join2   = arr => arr.filter(Boolean).join('\n\n');
+    function fmtRand(n){ return 'R' + Number(n||0).toLocaleString('en-ZA'); }
+    function bedsLbl(v){ return (v==null? 'N/A' : String(v)); }
+    function numeric(v){ return parseInt(String(v||'').replace(/\D/g,'' )||'0',10); }
+    function join2(arr){ return arr.filter(Boolean).join('\n\n'); }
 
     function normaliseSAMobile(input){
       if(!input) return null;
@@ -352,11 +370,16 @@
       return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(e||'').trim());
     }
     async function loadStock(){
-      try{ const r = await fetch(STOCK_URL,{cache:'no-store'}); if(!r.ok) throw 0; return await r.json(); }
-      catch(_){ return []; }
+      try{
+        const r = await fetch(STOCK_URL,{cache:'no-store'});
+        if(!r.ok) throw 0;
+        return await r.json();
+      }catch(_){ return []; }
     }
 
-    /* MATCHING */
+    /* ======================
+       MATCHING
+       ====================== */
     function scoreLead(ans,x){
       let s=0;
       if(numeric(ans.budget) >= (x.price||Infinity)) s+=15;
@@ -365,22 +388,28 @@
       if(String(ans.approved).toLowerCase()==='yes') s+=60;
       return s;
     }
-    const sortStrictByCloseness = (budget)=>(a,b)=>{
-      const da = budget - (a.x.price||0), db = budget - (b.x.price||0);
-      if(da!==db) return da-db;
-      if((b.x.price||0)!==(a.x.price||0)) return (b.x.price||0)-(a.x.price||0);
-      return b.score-a.score;
-    };
-    const sortNearByCloseness = (budget)=>(a,b)=>{
-      const da = (a.x.price||Infinity)-budget, db = (b.x.price||Infinity)-budget;
-      if(da!==db) return da-db;
-      if((b.x.price||0)!==(a.x.price||0)) return (b.x.price||0)-(a.x.price||0);
-      return b.score-a.score;
-    };
+    function sortStrictByCloseness(budget){
+      return (a,b)=>{
+        const da = budget - (a.x.price||0), db = budget - (b.x.price||0);
+        if(da!==db) return da-db;
+        if((b.x.price||0)!==(a.x.price||0)) return (b.x.price||0)-(a.x.price||0); // higher first
+        return b.score-a.score;
+      };
+    }
+    function sortNearByCloseness(budget){
+      return (a,b)=>{
+        const da = (a.x.price||Infinity)-budget, db = (b.x.price||Infinity)-budget;
+        if(da!==db) return da-db;
+        if((b.x.price||0)!==(a.x.price||0)) return (b.x.price||0)-(a.x.price||0);
+        return b.score-a.score;
+      };
+    }
 
-    /* MESSAGE BUILDERS */
-    let baseSummary = '';
-    let fullSummary = '';
+    /* ======================
+       MESSAGE BUILDERS
+       ====================== */
+    let baseSummary = ''; // buyer prefs+matches
+    let fullSummary = ''; // +PII/CTA when consented
 
     function buildBuyerBaseSummary(ans, chosen){
       const budgetNum = numeric(ans.budget);
@@ -456,7 +485,9 @@
       return parts.join('\n');
     }
 
-    /* VERIFICATION */
+    /* ======================
+       VERIFICATION
+       ====================== */
     let challenge = 'SM-000000';
     function newCode(){
       const n = Math.floor(Math.random()*900000)+100000;
@@ -501,36 +532,85 @@
       $('#btnMail').href = `mailto:${AGENT_EMAIL}?subject=${encodeURIComponent('Smart Match Lead')}&body=${text}`;
     }
 
-    /* VIEW SWITCHING */
+    /* ======================
+       COMPUTE & RENDER MATCHES
+       ====================== */
+    function computeAndRenderMatches(STOCK, ans){
+      const wantCount = Math.max(1, parseInt(ans.count||'3',10));
+      const allowOver = !!document.getElementById('allowOverBudget').checked;
+      const budgetNum = numeric(ans.budget);
+      const isApproved = String(ans.approved).toLowerCase()==='yes';
+
+      const scored = STOCK.map(x=>({x,score:scoreLead(ans,x)}));
+      const STRICT = scored.filter(m => (m.x.price||Infinity) <= budgetNum).sort(sortStrictByCloseness(budgetNum));
+      const NEAR   = scored.filter(m => (m.x.price||Infinity) >  budgetNum && (m.x.price-budgetNum)/Math.max(1,budgetNum) <= 0.08).sort(sortNearByCloseness(budgetNum));
+
+      let chosen = STRICT.slice(0,wantCount);
+      if(chosen.length<wantCount && allowOver) chosen = chosen.concat(NEAR.slice(0,wantCount-chosen.length));
+      if(chosen.length===0 && scored.length){
+        chosen = scored.slice().sort((a,b)=>{
+          const da=Math.abs((a.x.price||0)-budgetNum), db=Math.abs((b.x.price||0)-budgetNum);
+          if(da!==db) return da-db; return b.score-a.score;
+        }).slice(0,Math.min(wantCount,scored.length));
+      }
+
+      const out = document.getElementById('out');
+      if(!chosen.length){
+        out.innerHTML = `<p>No matches yet. Try adjusting budget/bedrooms.</p>`;
+        document.getElementById('verifyCard').classList.add('hidden');
+        return;
+      }
+
+      const items = chosen.map(m=>(
+        `<li class="no-select">
+          <a href="${m.x.url}" target="_blank" rel="noopener">${m.x.title}</a>
+          <span class="muted"> (WebRef ${m.x.ref||'—'}) — ${fmtRand(m.x.price)} — Beds: ${bedsLbl(m.x.beds)} — ${m.x.area||''}</span>
+        </li>`
+      )).join('');
+      const msg = isApproved
+        ? '<p><strong>Nice!</strong> You’re pre-approved — let’s book a viewing. Pick a time and Blessing will confirm.</p>'
+        : '<p><strong>Tip:</strong> Not pre-approved? We can connect you to a bond originator for a quick check.</p>';
+
+      out.innerHTML = `<ol class="no-select">${items}</ol>${msg}`;
+
+      // Build buyer message + show verify/send
+      buildBuyerBaseSummary(ans, chosen);
+      document.getElementById('verifyCard').classList.remove('hidden');
+      updateAnchors(); // reflect current summary in WA/mail
+    }
+
+    /* ======================
+       VIEW SWITCHING
+       ====================== */
     function showBuyer(){
-      $('#buyerPrefs').classList.remove('hidden');
-      $('#buyerResults').classList.remove('hidden');
-      $('#sellerCard').classList.add('hidden');
-      $('#verifyCard').classList.add('hidden'); // shown after buyer clicks Show Matches
+      document.getElementById('buyerPrefs').classList.remove('hidden');
+      document.getElementById('buyerResults').classList.remove('hidden');
+      document.getElementById('sellerCard').classList.add('hidden');
+      document.getElementById('verifyCard').classList.add('hidden'); // shown after buyer clicks Show Matches
     }
     function showSeller(){
-      $('#buyerPrefs').classList.add('hidden');
-      $('#buyerResults').classList.add('hidden');
-      $('#sellerCard').classList.remove('hidden');
-      $('#verifyCard').classList.remove('hidden'); // seller can verify immediately
+      document.getElementById('buyerPrefs').classList.add('hidden');
+      document.getElementById('buyerResults').classList.add('hidden');
+      document.getElementById('sellerCard').classList.remove('hidden');
+      document.getElementById('verifyCard').classList.remove('hidden'); // seller can verify immediately
       newCode(); toggleSendButtons(false); updateAnchors();
-      $('#helper').textContent = 'Fill a valid email, SA mobile, and type the code to unlock sending.';
+      document.getElementById('helper').textContent = 'Fill a valid email, SA mobile, and type the code to unlock sending.';
     }
 
-    /* MAIN */
+    /* ======================
+       MAIN
+       ====================== */
     (async function(){
       const STOCK = await loadStock();
-
-      // Use a single, consistent pending store
-      let pending = null;
+      let pending = null; // stores buyer answers until verified
 
       // Role listeners
-      $('#roleBuyer').addEventListener('change', e=>{ if(e.target.checked) showBuyer(); });
-      $('#roleSeller').addEventListener('change', e=>{ if(e.target.checked) showSeller(); });
-      showBuyer();
+      document.getElementById('roleBuyer').addEventListener('change', e=>{ if(e.target.checked) showBuyer(); });
+      document.getElementById('roleSeller').addEventListener('change', e=>{ if(e.target.checked) showSeller(); });
+      showBuyer(); // default
 
       // Code regen
-      $('#regen').addEventListener('click', newCode);
+      document.getElementById('regen').addEventListener('click', newCode);
       newCode();
 
       // Live verify + link updates + auto-run if pending
@@ -538,7 +618,7 @@
         const ok = isVerified();
         toggleSendButtons(ok);
         updateAnchors();
-        $('#helper').textContent = ok
+        document.getElementById('helper').textContent = ok
           ? 'Verified. You can send via WhatsApp or Email.'
           : 'Fill a valid email, SA mobile, and type the code to unlock sending.';
         if (ok && pending){
@@ -569,22 +649,32 @@
           return;
         }
 
+        // If verified → render now; else remember, show verify card, auto-render after verify
         const ok = isVerified();
         if (!ok) {
           document.getElementById('verifyCard').classList.remove('hidden');
           document.getElementById('helper').textContent = 'Verify your email, SA mobile, and code to see your matches.';
           document.getElementById('chk').focus();
-          pending = ans;                // remember answers until verified
+          pending = ans;
           toggleSendButtons(false);
           updateAnchors();
           return;
         }
-
-        // Already verified → show now
         pending = null;
         computeAndRenderMatches(STOCK, ans);
       });
     })();
   </script>
+
+  <!--
+    🧱 SCALABILITY & MAINTENANCE (kid-friendly reminders)
+    - Change agent phone/email: edit AGENT_PHONE_E164 / AGENT_EMAIL above.
+    - New agent? Copy this file, swap phone/email + point to their /data/listings.json.
+    - Stock stays fresh: a GitHub Action runs nightly to rewrite /data/listings.json.
+    - Want stronger anti-bot? Swap code challenge for Cloudflare Turnstile (drop-in).
+    - Want CRM sync? Point the WhatsApp/Email text to a Zapier/Power Automate webhook.
+    - Keep page fast: it’s vanilla JS + tiny CSS; no heavy frameworks needed.
+    - Test both roles (buyer/seller) on phone + desktop after each change.
+  -->
 </body>
 </html>
