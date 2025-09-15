@@ -5,23 +5,41 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Huizemark • Smart Match (Blessing Nsibande)</title>
 
+  <!--
+    🧸 SIMPLE NOTES FOR FUTURE YOU (A 4-YEAR-OLD SUPERHERO)
+    - This page helps BUYERS find homes and SELLERS list homes.
+    - We only show results after the person proves they are real: email + phone + tiny code.
+    - Buttons send a neat message to Blessing on WhatsApp or Email.
+    - We keep it safe (light security), fast (no heavy scripts), and on-brand (Huizemark).
+    - Your listings live in /data/listings.json and a nightly GitHub Action updates them.
+    - If something breaks, read the COMMENTS below—they are tiny breadcrumbs.
+  -->
+
   <!-- Favicon (Huizemark logo) -->
   <link rel="icon" type="image/png"
         href="https://d21tw07c6rnmp0.cloudfront.net/media/uploads/94/theme-settings/2025/5/94_8a5e0d54687d41228f79c92853b42629.png">
   <link rel="apple-touch-icon"
         href="https://d21tw07c6rnmp0.cloudfront.net/media/uploads/94/theme-settings/2025/5/94_8a5e0d54687d41228f79c92853b42629.png" />
 
+  <!-- 🔐 Light security (best-effort on static hosting) -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' https://api.whatsapp.com https://d21tw07c6rnmp0.cloudfront.net; img-src 'self' data: https://d21tw07c6rnmp0.cloudfront.net; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta name="format-detection" content="telephone=no">
+
   <style>
+    /* 🎨 COLOURS + THEME TOKENS */
     :root{
       --hz-orange:#f58220; --hz-grey:#4d4d4d; --hz-bg:#ffffff; --hz-text:#222;
       --hz-muted:#6b7280; --hz-border:#e5e7eb; --btn-text:#fff; --card-bg:#ffffff;
-      color-scheme: light dark;
+      color-scheme: light dark; /* lets the browser pick UI colours nicely */
     }
     .theme-dark{
       --hz-bg:#0b0b0c; --hz-text:#eaeaea; --hz-muted:#9aa0a6; --hz-border:#2a2a2d; --card-bg:#141416;
       color-scheme: dark;
     }
 
+    /* 🧱 LAYOUT + BASICS */
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial;background:var(--hz-bg);color:var(--hz-text)}
     a{color:var(--hz-orange)}
     .wrap{max-width:780px;margin:24px auto;padding:0 16px}
@@ -45,6 +63,22 @@
     .pill{display:inline-block;background:#f8f8f8;border:1px solid var(--hz-border);border-radius:999px;padding:4px 8px;font-size:12px;margin-left:8px}
     .theme-dark .pill{background:#121214}
     .hidden{display:none}
+
+    /* 🚰 DETER GENTLE COPYING (not bulletproof) */
+    .results { position: relative; user-select: none; }
+    .results .wm {
+      position:absolute; inset:0; pointer-events:none;
+      background-image: repeating-linear-gradient(
+        -30deg,
+        rgba(245,130,32,0.08) 0px,
+        rgba(245,130,32,0.08) 2px,
+        transparent 2px,
+        transparent 140px
+      );
+      mix-blend-mode: multiply;
+    }
+    .theme-dark .results .wm { mix-blend-mode: screen; }
+    .no-select { user-select: none; }
   </style>
 </head>
 <body>
@@ -59,7 +93,7 @@
   </header>
 
   <main class="wrap">
-    <!-- ROLE SWITCH -->
+    <!-- 🎯 ROLE SWITCH: buyer OR seller -->
     <section class="card" aria-labelledby="role-title">
       <h2 id="role-title" style="margin-top:0">How can we help?</h2>
       <div role="radiogroup" aria-label="Select your goal" style="display:flex; gap:12px; flex-wrap:wrap">
@@ -69,7 +103,7 @@
       <p class="muted" style="margin:8px 0 0">Choose one. We’ll show the right steps.</p>
     </section>
 
-    <!-- BUYER: PREFERENCES -->
+    <!-- 🛒 BUYER: PREFERENCES -->
     <section id="buyerPrefs" class="card">
       <h2 style="margin-top:0">Your preferences</h2>
       <form id="qform" novalidate>
@@ -98,17 +132,26 @@
             </div>
           </div>
         </div>
+
+        <!-- 🤖 Honeypot (bots fill this; humans never see/click) -->
+        <div style="position:absolute; left:-9999px; top:-9999px;">
+          <label>Leave this field empty</label>
+          <input id="hp" name="hp" tabindex="-1" autocomplete="off">
+        </div>
+
         <button class="btn" type="submit">Show Matches</button>
       </form>
     </section>
 
-    <!-- BUYER: RESULTS -->
+    <!-- 🧭 BUYER: RESULTS -->
     <section id="buyerResults" class="card results">
       <h2 style="margin-top:0">Top Matches</h2>
       <div id="out" class="muted">Complete the form to see suggested properties.</div>
+      <!-- light watermark to deter lazy copying -->
+      <div class="wm" aria-hidden="true"></div>
     </section>
 
-    <!-- SELLER: FORM -->
+    <!-- 🏠 SELLER: FORM -->
     <section id="sellerCard" class="card hidden" aria-labelledby="seller-title">
       <h2 id="seller-title" style="margin-top:0">Tell us about your property</h2>
 
@@ -178,10 +221,17 @@
           <input id="s_links" placeholder="e.g. Google Drive, Dropbox, YouTube">
         </div>
       </div>
+
+      <!-- 🤖 Honeypot for seller too -->
+      <div style="position:absolute; left:-9999px; top:-9999px;">
+        <label>Leave this field empty</label>
+        <input id="hp2" name="hp2" tabindex="-1" autocomplete="off">
+      </div>
+
       <p class="muted">We’ll verify your contact details below, then you can message Blessing instantly.</p>
     </section>
 
-    <!-- SHARED: CONTACT + VERIFICATION + SEND -->
+    <!-- 📞 SHARED: CONTACT + VERIFICATION + SEND -->
     <section id="verifyCard" class="card hidden" aria-live="polite">
       <h2 style="margin-top:0">Contact & verification <span class="pill">Required</span></h2>
 
@@ -234,12 +284,12 @@
       </div>
       <p class="muted" id="helper" style="margin:6px 0 0">Fill details, pass verification, then buttons will unlock.</p>
 
-      <!--<p class="muted" style="margin:12px 0 0">
+      <p class="muted" style="margin:12px 0 0">
         View all of Blessing’s listings:
         <a href="https://www.huizemark.com/agents/blessing-nsibande/75570/" target="_blank" rel="noopener">
           Blessing Nsibande • Huizemark
         </a>
-      </p> -->
+      </p>
     </section>
   </main>
 
@@ -255,12 +305,16 @@
   </footer>
 
   <script>
-    /* ======= CONFIG ======= */
+    /* ======================
+       🧠 CONFIG (CHANGE ME)
+       ====================== */
     const AGENT_PHONE_E164 = '27662729016';                // WhatsApp (no '+')
-    const AGENT_EMAIL      = 'bnsibande@huizemark.com';   // Email
-    const STOCK_URL        = '/data/listings.json';
+    const AGENT_EMAIL      = 'blessing@huizemark.co.za';   // Email
+    const STOCK_URL        = '/data/listings.json';        // Your nightly-updated stock
 
-    /* ======= THEME (persisted) ======= */
+    /* ======================
+       🌙 THEME (SAVED)
+       ====================== */
     (function(){
       const root = document.documentElement, btn = document.getElementById('toggleTheme');
       const saved = localStorage.getItem('sm-theme');
@@ -274,20 +328,37 @@
       });
     })();
 
-    /* ======= Data ======= */
-    async function loadStock(){
-      try{ const r = await fetch(STOCK_URL,{cache:'no-store'}); if(!r.ok) throw 0; return await r.json(); }
-      catch(_){ return []; }
-    }
+    /* ======================
+       🔐 DETER EASY COPYING
+       ====================== */
+    // We keep accessibility: we allow right-click in input fields for paste, etc.
+    document.addEventListener('contextmenu', e => {
+      const t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      e.preventDefault();
+    });
+    document.addEventListener('keydown', e => {
+      const ctrl = e.ctrlKey || e.metaKey;
+      const inField = ['INPUT','TEXTAREA','SELECT'].includes((e.target||{}).tagName);
+      if (!inField) {
+        const k = e.key.toLowerCase();
+        if ( (ctrl && (k==='s' || k==='u' || k==='p')) || e.key==='F12' || (ctrl && e.shiftKey && k==='i') ) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }
+    });
 
-    /* ======= Helpers ======= */
+    /* ======================
+       🧰 HELPERS
+       ====================== */
     const $ = sel => document.querySelector(sel);
     const fmtRand = n => 'R' + Number(n||0).toLocaleString('en-ZA');
     const bedsLbl = v => (v==null? 'N/A' : String(v));
     const numeric = v => parseInt(String(v||'').replace(/\D/g,'' )||'0',10);
     const join2   = arr => arr.filter(Boolean).join('\n\n');
 
-    // SA mobile normaliser → E.164
+    // SA mobile → E.164 (e.g., 082... => 2782...)
     function normaliseSAMobile(input){
       if(!input) return null;
       const digits = String(input).replace(/\D/g,'');
@@ -300,6 +371,14 @@
       return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(e||'').trim());
     }
 
+    async function loadStock(){
+      try{ const r = await fetch(STOCK_URL,{cache:'no-store'}); if(!r.ok) throw 0; return await r.json(); }
+      catch(_){ return []; }
+    }
+
+    /* ======================
+       🧮 MATCH SCORING
+       ====================== */
     function scoreLead(ans,x){
       let s=0;
       if(numeric(ans.budget) >= (x.price||Infinity)) s+=15;
@@ -321,7 +400,9 @@
       return b.score-a.score;
     };
 
-    /* ======= MESSAGES ======= */
+    /* ======================
+       📨 MESSAGE BUILDERS
+       ====================== */
     let baseSummary = '';   // buyer: prefs + matches (no PII)
     let fullSummary = '';   // buyer: + PII/CTA if consent
 
@@ -358,7 +439,7 @@
       }
       const cta = $('#cta').value;
       parts.push(`Next step: ${cta}`);
-      const det  = $('#chk').dataset.ctaDetails || ''; // (set below if needed)
+      const det = ''; // keep empty; add if you later add a CTA details field
       if(det) parts.push(`Details: ${det}`);
       fullSummary = join2(parts);
       return fullSummary || baseSummary;
@@ -405,7 +486,9 @@
       return parts.join('\n');
     }
 
-    /* ======= VERIFICATION ======= */
+    /* ======================
+       ✅ VERIFICATION
+       ====================== */
     let challenge = 'SM-000000';
     function newCode(){
       const n = Math.floor(Math.random()*900000)+100000; // 6 digits
@@ -440,7 +523,6 @@
       $('#btnMail').setAttribute('aria-disabled', enabled ? 'false' : 'true');
     }
 
-    /* ======= LINKS ======= */
     function currentMessageText(){
       if($('#roleSeller').checked){
         return buildSellerSummary();
@@ -454,7 +536,9 @@
       $('#btnMail').href = `mailto:${AGENT_EMAIL}?subject=${encodeURIComponent('Smart Match Lead')}&body=${text}`;
     }
 
-    /* ======= UI TOGGLES ======= */
+    /* ======================
+       🔀 UI TOGGLES
+       ====================== */
     function showBuyer(){
       $('#buyerPrefs').classList.remove('hidden');
       $('#buyerResults').classList.remove('hidden');
@@ -465,12 +549,14 @@
       $('#buyerPrefs').classList.add('hidden');
       $('#buyerResults').classList.add('hidden');
       $('#sellerCard').classList.remove('hidden');
-      $('#verifyCard').classList.remove('hidden'); // seller can verify & send immediately
+      $('#verifyCard').classList.remove('hidden'); // seller verifies & sends immediately
       newCode(); toggleSendButtons(false); updateAnchors();
-      $('#helper').textContent = 'Fill a valid email, SA mobile number, and type the code to unlock sending.';
+      $('#helper').textContent = 'Fill a valid email, SA mobile, and type the code to unlock sending.';
     }
 
-    /* ======= MAIN ======= */
+    /* ======================
+       🧩 MAIN
+       ====================== */
     (async function(){
       const STOCK = await loadStock();
 
@@ -492,58 +578,65 @@
             updateAnchors();
             $('#helper').textContent = ok
               ? 'Verified. You can send via WhatsApp or Email.'
-              : 'Fill a valid email, SA mobile number, and type the code to unlock sending.';
+              : 'Fill a valid email, SA mobile, and type the code to unlock sending.';
+
+            // If user submitted buyer prefs but was gated, show results once verified
+            if (ok && window.pendingAns) {
+              computeAndRenderMatches(STOCK, window.pendingAns);
+              window.pendingAns = null;
+            }
           });
         });
       });
 
-      // Buyer matching
-      $('#qform').addEventListener('submit', (e)=>{
+      // Remember pending buyer answers until verified
+      window.pendingAns = null;
+
+      // Buyer matching with strict lead gate
+      document.getElementById('qform').addEventListener('submit', (e)=>{
         e.preventDefault();
-        const ans = Object.fromEntries(new FormData(e.target).entries());
-        const wantCount = Math.max(1, parseInt(ans.count||'3',10));
-        const allowOver = !!document.getElementById('allowOverBudget').checked;
-        const budgetNum = numeric(ans.budget);
-        const isApproved = String(ans.approved).toLowerCase()==='yes';
 
-        const scored = STOCK.map(x=>({x,score:scoreLead(ans,x)}));
-        const STRICT = scored.filter(m => (m.x.price||Infinity) <= budgetNum).sort(sortStrictByCloseness(budgetNum));
-        const NEAR   = scored.filter(m => (m.x.price||Infinity) >  budgetNum && (m.x.price-budgetNum)/Math.max(1,budgetNum) <= 0.08).sort(sortNearByCloseness(budgetNum));
-
-        let chosen = STRICT.slice(0,wantCount);
-        if(chosen.length<wantCount && allowOver) chosen = chosen.concat(NEAR.slice(0,wantCount-chosen.length));
-        if(chosen.length===0 && scored.length){
-          chosen = scored.slice().sort((a,b)=>{
-            const da=Math.abs((a.x.price||0)-budgetNum), db=Math.abs((b.x.price||0)-budgetNum);
-            if(da!==db) return da-db; return b.score-a.score;
-          }).slice(0,Math.min(wantCount,scored.length));
-        }
-
-        const out = $('#out');
-        if(!chosen.length){
-          out.innerHTML = `<p>No matches yet. Try adjusting budget/bedrooms.</p>`;
-          $('#verifyCard').classList.add('hidden');
+        // Bot honeypot
+        if ((document.getElementById('hp').value||'').trim() !== '') {
+          alert('Submission blocked.');
           return;
         }
 
-        const items = chosen.map(m=>(
-          `<li>
-            <a href="${m.x.url}" target="_blank" rel="noopener">${m.x.title}</a>
-            <span class="muted"> (WebRef ${m.x.ref||'—'}) — ${fmtRand(m.x.price)} — Beds: ${bedsLbl(m.x.beds)} — ${m.x.area||''}</span>
-          </li>`
-        )).join('');
-        const msg = isApproved
-          ? '<p><strong>Nice!</strong> You’re pre-approved — let’s book a viewing. Pick a time and Blessing will confirm.</p>'
-          : '<p><strong>Tip:</strong> Not pre-approved? We can connect you to a bond originator for a quick check.</p>';
-        out.innerHTML = `<ol>${items}</ol>${msg}`;
+        const ans = Object.fromEntries(new FormData(e.target).entries());
+        if (!numeric(ans.budget)) {
+          alert('Please enter your budget (numbers only).');
+          document.getElementById('budget').focus();
+          return;
+        }
 
-        // Build buyer summary + show verification/send
-        buildBuyerBaseSummary(ans, chosen);
-        $('#verifyCard').classList.remove('hidden');
-        newCode(); toggleSendButtons(false); updateAnchors();
-        $('#helper').textContent = 'Fill a valid email, SA mobile number, and type the code to unlock sending.';
+        const ok = isVerified();
+        if (!ok) {
+          document.getElementById('verifyCard').classList.remove('hidden');
+          document.getElementById('helper').textContent = 'Verify your email, SA mobile, and code to see your matches.';
+          document.getElementById('chk').focus();
+          window.pendingAns = ans;            // remember answers
+          toggleSendButtons(false);
+          updateAnchors();
+          return;
+        }
+
+        // Already verified? Show now.
+        window.pendingAns = null;
+        computeAndRenderMatches(STOCK, ans);
       });
     })();
   </script>
+
+  <!--
+    🧱 SCALABILITY & MAINTENANCE (EXPLAINED LIKE LEGO)
+    - To change Blessing’s phone/email: edit AGENT_PHONE_E164 / AGENT_EMAIL above (2 LEGO blocks).
+    - To use with another agent: copy this file, change agent bits + point to THEIR /data/listings.json.
+    - To keep stock fresh: GitHub Action runs fetch_stock.py nightly and writes /data/listings.json.
+    - To add more fields to messages: edit the message builders (tiny pieces under “MESSAGE BUILDERS”).
+    - To stop more bots later: swap the human code for Cloudflare Turnstile (free) without changing the UI.
+    - To host anywhere: this is a single HTML file; just upload + keep the /data folder next to it.
+    - To test safely: open in a private tab on phone + desktop, try both buyer and seller flows.
+    - To roll out to a whole office: templatize phone/email/logo → generate one per agent (SaaS-ready).
+  -->
 </body>
 </html>
