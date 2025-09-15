@@ -6,11 +6,11 @@
   <title>Huizemark • Smart Match (Blessing Nsibande)</title>
 
   <!-- 🧸 SIMPLE NOTES (maintenance):
-       - This file is ONE page that does buyers + sellers.
-       - Results come from /data/listings.json (GitHub Action updates nightly).
-       - Change agent phone/email below in the CONFIG section.
-       - Dark mode is manual (button). We removed "auto dark" to avoid confusion.
-       - We only show matches when user is verified (email + SA phone + code).
+       - One page handles BUYERS + SELLERS.
+       - Stock comes from /data/listings.json (GitHub Action updates nightly).
+       - Change agent phone/email in CONFIG below.
+       - Dark mode is MANUAL only (button) to avoid conflicts.
+       - We show matches AFTER verification (email + SA mobile + code).
        - WhatsApp/Email buttons include the full summary once verified. -->
 
   <!-- Favicon -->
@@ -19,14 +19,20 @@
   <link rel="apple-touch-icon"
         href="https://d21tw07c6rnmp0.cloudfront.net/media/uploads/94/theme-settings/2025/5/94_8a5e0d54687d41228f79c92853b42629.png" />
 
-  <!-- Best-effort client hardening (static hosting) -->
+  <!-- Best-effort hardening (static hosting).
+       IMPORTANT: allow inline script, or the app won’t run on a single-file site. -->
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self' https://api.whatsapp.com https://d21tw07c6rnmp0.cloudfront.net; img-src 'self' data: https://d21tw07c6rnmp0.cloudfront.net; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'">
+        content="default-src 'self' https://api.whatsapp.com https://d21tw07c6rnmp0.cloudfront.net;
+                 img-src 'self' data: https://d21tw07c6rnmp0.cloudfront.net;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline';
+                 connect-src 'self';
+                 frame-ancestors 'none'">
   <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
   <meta name="format-detection" content="telephone=no">
 
   <style>
-    /* 🎨 BRAND THEME TOKENS (only manual toggle, no auto-dark to avoid conflicts) */
+    /* 🎨 BRAND THEME TOKENS (manual toggle only) */
     :root{
       --hz-orange:#f58220; --hz-grey:#4d4d4d; --hz-bg:#ffffff; --hz-text:#222;
       --hz-muted:#6b7280; --hz-border:#e5e7eb; --btn-text:#fff; --card-bg:#ffffff;
@@ -47,7 +53,7 @@
     label{display:block;margin:10px 0 4px;font-weight:600}
     input,select,button,textarea{font:inherit}
     input,select,textarea{width:100%;padding:12px;border:1px solid var(--hz-border);border-radius:10px;background:transparent;color:var(--hz-text)}
-    /* Dark inputs/dropdowns are truly dark */
+    /* Dark inputs/dropdowns */
     .theme-dark input,.theme-dark select,.theme-dark textarea{background:#0f0f10;color:#eaeaea;border-color:#2a2a2d}
     .theme-dark select option{background:#0f0f10;color:#eaeaea}
 
@@ -62,7 +68,7 @@
     .theme-dark .pill{background:#121214}
     .hidden{display:none}
 
-    /* Light deterrents for copying */
+    /* Gentle copy deterrent */
     .results { position: relative; user-select: none; }
     .results .wm {
       position:absolute; inset:0; pointer-events:none;
@@ -506,14 +512,27 @@
     function setEmailError(show){ $('#emailErr').hidden = !show; }
     function setPhoneError(show){ $('#phoneErr').hidden = !show; }
     function isVerified(){
+      // EMAIL
       const emailOK = validateEmail($('#email').value.trim());
       setEmailError(!emailOK);
+
+      // PHONE (SA)
       const phoneE164 = normaliseSAMobile($('#phone').value.trim());
       const phoneOK = !!phoneE164;
       setPhoneError(!phoneOK);
+
+      // CODE
       const codeOK = $('#chk').value.trim().toUpperCase() === challenge.toUpperCase();
       setVeriMessage(codeOK ? 'Verified ✓' : ($('#chk').value ? 'Code does not match.' : ''), codeOK);
-      return emailOK && phoneOK && codeOK;
+
+      // HONEYPOTS (block bots quietly)
+      const buyerHPclear  = !$('#hp')  || !$('#hp').value.trim();
+      const sellerHPclear = !$('#hp2') || !$('#hp2').value.trim();
+
+      // If on seller role, insist seller honeypot is clear
+      const hpOK = $('#roleSeller').checked ? sellerHPclear : buyerHPclear;
+
+      return emailOK && phoneOK && codeOK && hpOK;
     }
     function toggleSendButtons(enabled){
       $('#btnWA').setAttribute('aria-disabled', enabled ? 'false' : 'true');
@@ -627,8 +646,9 @@
         }
       };
       ['input','change','keyup'].forEach(evt=>{
-        ['#name','#email','#phone','#consent','#cta','#chk'].forEach(sel=>{
-          document.querySelector(sel).addEventListener(evt, onVerifyInputs);
+        ['#name','#email','#phone','#consent','#cta','#chk','#hp','#hp2'].forEach(sel=>{
+          const el = document.querySelector(sel);
+          if(el) el.addEventListener(evt, onVerifyInputs);
         });
       });
 
@@ -649,7 +669,6 @@
           return;
         }
 
-        // If verified → render now; else remember, show verify card, auto-render after verify
         const ok = isVerified();
         if (!ok) {
           document.getElementById('verifyCard').classList.remove('hidden');
@@ -671,10 +690,10 @@
     - Change agent phone/email: edit AGENT_PHONE_E164 / AGENT_EMAIL above.
     - New agent? Copy this file, swap phone/email + point to their /data/listings.json.
     - Stock stays fresh: a GitHub Action runs nightly to rewrite /data/listings.json.
-    - Want stronger anti-bot? Swap code challenge for Cloudflare Turnstile (drop-in).
-    - Want CRM sync? Point the WhatsApp/Email text to a Zapier/Power Automate webhook.
-    - Keep page fast: it’s vanilla JS + tiny CSS; no heavy frameworks needed.
-    - Test both roles (buyer/seller) on phone + desktop after each change.
+    - Stronger anti-bot later? Replace code challenge with Cloudflare Turnstile (drop-in).
+    - CRM/webhooks later? Send the same summary to a Zapier/Power Automate endpoint.
+    - Keep it fast: pure HTML/JS/CSS; no heavy frameworks.
+    - Always test both roles (buyer/seller) on phone + desktop after updates.
   -->
 </body>
 </html>
