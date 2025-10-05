@@ -16,6 +16,14 @@
     "area": "Dalpark"
   },
   {
+    "ref": "RL182277",
+    "title": "Renovated 3 bedroom house with 2 bedroom Flat in Rynsoord, Benoni",
+    "url": "https://www.huizemark.com/results/residential/for-sale/benoni/rynsoord/house/2921150/",
+    "price": 1850000,
+    "beds": 4,
+    "area": "Rynsoord"
+  },
+  {
     "ref": "6720967",
     "title": "Uniquely styled 4 bedroom home in Presidents Dam",
     "url": "https://www.huizemark.com/results/residential/for-sale/springs/presidents-dam/house/2766016/",
@@ -118,13 +126,5 @@
     "price": 400000,
     "beds": 1,
     "area": "Brakpan Central"
-  },
-  {
-    "ref": "RL179514",
-    "title": "Vacant land for sale in Minnebron",
-    "url": "https://www.huizemark.com/results/residential/for-sale/brakpan/minnebron/vacant-land/2802716/",
-    "price": 376250,
-    "beds": 0,
-    "area": "Minnebron"
   }
 ]
