@@ -96,14 +96,6 @@
     "area": "Minnebron"
   },
   {
-    "ref": "RL178171",
-    "title": "Beautiful 3 bedroom house in Brakpan Central",
-    "url": "https://www.huizemark.com/results/residential/for-sale/brakpan/brakpan-central/house/2785780/",
-    "price": 950000,
-    "beds": 2,
-    "area": "Brakpan Central"
-  },
-  {
     "ref": "6451571",
     "title": "Stunning 3 bedroom family house in Brenthurst",
     "url": "https://www.huizemark.com/results/residential/for-sale/brakpan/brenthurst/house/2766121/21-trollip-road/",
@@ -126,5 +118,13 @@
     "price": 400000,
     "beds": 1,
     "area": "Brakpan Central"
+  },
+  {
+    "ref": "RL179514",
+    "title": "Vacant land for sale in Minnebron",
+    "url": "https://www.huizemark.com/results/residential/for-sale/brakpan/minnebron/vacant-land/2802716/",
+    "price": 376250,
+    "beds": 0,
+    "area": "Minnebron"
   }
 ]
