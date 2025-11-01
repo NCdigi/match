@@ -2,7 +2,7 @@
   {
     "ref": "RL178196",
     "title": "Stunning Modern 4 Bedroom Family Home in Kenleaf, Brakpan",
-    "url": "https://www.huizemark.com/results/residential/for-sale/154/kenleaf/house/2787095/",
+    "url": "https://www.huizemark.com/results/residential/for-sale/brakpan/kenleaf/house/2787095/",
     "price": 2850000,
     "beds": 4,
     "area": "Kenleaf"
@@ -10,7 +10,7 @@
   {
     "ref": "6831603",
     "title": "4 bedroom house with 3 x 2 bedroom Units in Dalpark ext 9",
-    "url": "https://www.huizemark.com/results/residential/for-sale/154/dalpark/house/2765555/",
+    "url": "https://www.huizemark.com/results/residential/for-sale/brakpan/dalpark/house/2765555/",
     "price": 2395000,
     "beds": 2,
     "area": "Dalpark"
@@ -24,17 +24,9 @@
     "area": "Rynsoord"
   },
   {
-    "ref": "RL182277",
-    "title": "Renovated 3 bedroom house with 2 bedroom Flat in Rynsoord, Benoni",
-    "url": "https://www.huizemark.com/results/residential/for-sale/27/rynsoord/house/2921150/",
-    "price": 1850000,
-    "beds": 2,
-    "area": "Rynsoord"
-  },
-  {
     "ref": "6720967",
     "title": "Uniquely styled 4 bedroom home in Presidents Dam",
-    "url": "https://www.huizemark.com/results/residential/for-sale/185/presidents-dam/house/2766016/",
+    "url": "https://www.huizemark.com/results/residential/for-sale/springs/presidents-dam/house/2766016/",
     "price": 1785000,
     "beds": 3,
     "area": "Presidents Dam"
@@ -42,7 +34,7 @@
   {
     "ref": "6627275",
     "title": "Lovely 5 Bedroom House for Sale in Selcourt",
-    "url": "https://www.huizemark.com/results/residential/for-sale/185/selcourt/house/2765908/",
+    "url": "https://www.huizemark.com/results/residential/for-sale/springs/selcourt/house/2765908/",
     "price": 1750000,
     "beds": 3,
     "area": "Selcourt"
@@ -56,25 +48,9 @@
     "area": "Boksburg South"
   },
   {
-    "ref": "RL182186",
-    "title": "Offices with 2 Flats situated in Boksburg South",
-    "url": "https://www.huizemark.com/results/residential/for-sale/144/boksburg-south/freehold/2911783/",
-    "price": 1600000,
-    "beds": 2,
-    "area": "Boksburg South"
-  },
-  {
     "ref": "RL181782",
     "title": "Stunning 5 bedroom home with Flatlet in Leachville ext 1",
     "url": "https://www.huizemark.com/results/residential/for-sale/brakpan/leachville-ext-1/house/2886064/",
-    "price": 1495000,
-    "beds": 3,
-    "area": "Leachville Ext 1"
-  },
-  {
-    "ref": "RL181782",
-    "title": "Stunning 5 bedroom home with Flatlet in Leachville ext 1",
-    "url": "https://www.huizemark.com/results/residential/for-sale/154/leachville-ext-1/house/2886064/",
     "price": 1495000,
     "beds": 3,
     "area": "Leachville Ext 1"
@@ -88,17 +64,9 @@
     "area": "Brakpan Central"
   },
   {
-    "ref": "RL182183",
-    "title": "Beautiful 3 bedroom house with 2 Flats in Brkpan central",
-    "url": "https://www.huizemark.com/results/residential/for-sale/154/brakpan-central/house/2911682/",
-    "price": 1350000,
-    "beds": 1,
-    "area": "Brakpan Central"
-  },
-  {
     "ref": "7137344",
     "title": "Stunning 3 bedroom house with 2 bedroom flatlet in Brakpan",
-    "url": "https://www.huizemark.com/results/residential/for-sale/154/brakpan-central/house/2765308/",
+    "url": "https://www.huizemark.com/results/residential/for-sale/brakpan/brakpan-central/house/2765308/",
     "price": 1290000,
     "beds": 2,
     "area": "Brakpan Central"
@@ -106,7 +74,7 @@
   {
     "ref": "RL181733",
     "title": "Your Best Investment Of 2025!",
-    "url": "https://www.huizemark.com/results/residential/for-sale/154/brakpan-central/house/2878184/",
+    "url": "https://www.huizemark.com/results/residential/for-sale/brakpan/brakpan-central/house/2878184/",
     "price": 1250000,
     "beds": 2,
     "area": "Brakpan Central"
@@ -114,7 +82,7 @@
   {
     "ref": "6952827",
     "title": "Fixer-Upper Opportunity! Spacious 4-Bedroom Corner Home with Huge Yard",
-    "url": "https://www.huizemark.com/results/residential/for-sale/144/boksburg-central/house/2765149/",
+    "url": "https://www.huizemark.com/results/residential/for-sale/boksburg/boksburg-central/house/2765149/",
     "price": 1080000,
     "beds": 2,
     "area": "Boksburg Central"
@@ -122,7 +90,7 @@
   {
     "ref": "RL178195",
     "title": "Beautiful newly renovated 3 bedroom house in Minnebron, Brakpan",
-    "url": "https://www.huizemark.com/results/residential/for-sale/154/minnebron/house/2787064/",
+    "url": "https://www.huizemark.com/results/residential/for-sale/brakpan/minnebron/house/2787064/",
     "price": 995000,
     "beds": 2,
     "area": "Minnebron"
@@ -130,7 +98,7 @@
   {
     "ref": "6451571",
     "title": "Stunning 3 bedroom family house in Brenthurst",
-    "url": "https://www.huizemark.com/results/residential/for-sale/154/brenthurst/house/2766121/",
+    "url": "https://www.huizemark.com/results/residential/for-sale/brakpan/brenthurst/house/2766121/",
     "price": 945000,
     "beds": 2,
     "area": "Brenthurst"
@@ -138,15 +106,23 @@
   {
     "ref": "7139519",
     "title": "Stunning 2 Bedroom house in Crystal Park ext 64",
-    "url": "https://www.huizemark.com/results/residential/for-sale/27/crystal-park/house/2765914/",
+    "url": "https://www.huizemark.com/results/residential/for-sale/benoni/crystal-park/house/2765914/",
     "price": 750000,
     "beds": 1,
     "area": "Crystal Park"
   },
   {
+    "ref": "RL175820",
+    "title": "Beautiful 2 bedroom apartment in Brakpan",
+    "url": "https://www.huizemark.com/results/residential/for-sale/brakpan/brakpan-central/apartment/2765207/",
+    "price": 400000,
+    "beds": 1,
+    "area": "Brakpan Central"
+  },
+  {
     "ref": "RL179514",
     "title": "Vacant land for sale in Minnebron",
-    "url": "https://www.huizemark.com/results/residential/for-sale/154/minnebron/vacant-land/2802716/",
+    "url": "https://www.huizemark.com/results/residential/for-sale/brakpan/minnebron/vacant-land/2802716/",
     "price": 376250,
     "beds": 0,
     "area": "Minnebron"
